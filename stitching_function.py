@@ -8,6 +8,7 @@ Created on Thu Mar  4 23:48:30 2021
 import subprocess
 import sys
 import os
+import pathlib
 
 """
 Uses NIST to stitch together sets of images. Requires the Fiji application to 
@@ -28,13 +29,20 @@ java_run: path to Fiji's built in Java program
 """
 def stitching(fiji_dir, dirs, name_keys, prefix, template,
               output, order = "SEQUENTIAL", 
-              scope_path = "HORIZONTALCONTINUOUS", z_list = "1-3",
-              java_run = 'java/macosx/adoptopenjdk-8.jdk/jre/Contents/Home/bin/java'):
+              scope_path = "HORIZONTALCONTINUOUS", z_list = "1-3"):
+    fiji_paths = pathlib.Path(fiji_dir)
+    fiji_ops = fiji_paths.glob('java/**/bin/java')
+    for path in fiji_ops:
+        if path.stem == 'java':
+            java_run = path
+            break
+    else:
+        raise RuntimeError("Explosion; no Java found")
     old_dir = os.getcwd()
     # for each time point folder in the given directory.... (minus the first, which is .DS_Store)
     for image_set in sorted(os.listdir(dirs))[1:]:
-        #create the path to the specific folder
-        image_dir = "\'"+ dirs + '/'+image_set+"\'"
+        #create the path to the specific folder, for some reason double quotes are needed...
+        image_dir = "'"+ dirs + '/'+image_set+"'"
         #create the regular expression for each image in that folder
         start_file = name_keys[template]
         start_file = start_file.replace('time', image_set)
@@ -163,7 +171,7 @@ def stitching(fiji_dir, dirs, name_keys, prefix, template,
 
 java_loc = '/Applications/Fiji.app'
 data_dir = '/Users/ConradOakes/Massachusetts Institute of Technology/GallowayLab - 2021.01.17.NT_FT_2dpi_timelapse/3dpi_timelapse/XY01'
-name_key = ["2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_CH1.tif", "2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_CH3.tif",
+name_key = ["2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_CH1.tif", "2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_CH3_corrected.tiff",
              "2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_CH4.tif", "2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_Overlay.tif"]
 prefixes = ["CH1", "CH3", "CH4", "Overlay"]
 main_chan = 1
