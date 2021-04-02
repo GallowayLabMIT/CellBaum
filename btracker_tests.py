@@ -17,8 +17,9 @@ objects = pd.read_csv(objects)
 
 formatted = objects.rename(columns={'Metadata_time' : 't', 'Location_Center_X' : 'x', 
                                     'Location_Center_Y' : 'y', 'Metadata_zstep' : 'z'})
+formatted = formatted[['t', 'x', 'y', 'z']]
 
-formatted['ID'] = formatted.index
+#formatted['ID'] = formatted.index
 
 objects_to_track = localizations_to_objects(formatted)
 
@@ -27,8 +28,8 @@ with btrack.BayesianTracker() as tracker:
 
   # configure the tracker using a config file
   tracker.configure_from_file('/Users/ConradOakes/BayesianTracker/models/cell_config.json')
-  tracker.update_method = BayesianUpdates.APPROXIMATE
-  tracker.max_search_radius = 200
+  tracker.update_method = BayesianUpdates.EXACT
+  tracker.max_search_radius = 100
   # append the objects to be tracked
   tracker.append(objects_to_track)
 
@@ -36,10 +37,10 @@ with btrack.BayesianTracker() as tracker:
   tracker.volume=((0,3700),(0,2800),(0,4))
 
   # track them (in interactive mode)
-  tracker.track_interactive(step_size=100)
+  tracker.track_interactive(step_size=2)
 
   # generate hypotheses and run the global optimizer
-  tracker.optimize()
+  #tracker.optimize()
 
   # get the tracks as a python list
   tracks = tracker.tracks
