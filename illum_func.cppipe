@@ -74,7 +74,7 @@ CorrectIlluminationCalculate:[module_num:5|svn_version:'Unknown'|variable_revisi
     Block size:60
     Rescale the illumination function?:Yes
     Calculate function for each image individually, or based on all images?:All: Across cycles
-    Smoothing method:No smoothing
+    Smoothing method:Fit Polynomial
     Method to calculate smoothing filter size:Automatic
     Approximate object diameter:10
     Smoothing filter size:10

@@ -27,7 +27,7 @@ order: order of the positions in the {p} of name_keys (default = SEQUENTIAL)
 scope_path: the microscopes path (defalut = HORIZONTALCONTINUOUS)
 java_run: path to Fiji's built in Java program
 """
-def stitching(fiji_dir, dirs, name_keys, prefix, template,
+def stitching(fiji_dir, template_dir, other_dir, name_keys, prefix, template,
               output, order = "SEQUENTIAL", 
               scope_path = "HORIZONTALCONTINUOUS", z_list = "1-3"):
     fiji_paths = pathlib.Path(fiji_dir)
@@ -40,7 +40,7 @@ def stitching(fiji_dir, dirs, name_keys, prefix, template,
         raise RuntimeError("Explosion; no Java found")
     old_dir = os.getcwd()
     # for each time point folder in the given directory....
-    dir_path = pathlib.Path(dirs)
+    dir_path = pathlib.Path(template_dir)
     for image_set in dir_path.iterdir():
         if image_set.is_dir():
             #create the regular expression for each image in that folder
@@ -117,7 +117,7 @@ def stitching(fiji_dir, dirs, name_keys, prefix, template,
                             "--gridWidth", '5',
                             "--gridHeight", '5',
                             "--startTile", '1',
-                            "--imageDir", "'"+str(image_set)+"'",
+                            "--imageDir", "'"+other_dir + "/"+ t+"'",
                             "--filenamePattern", channel_set,
                             "--filenamePatternType", order,
                             "--gridOrigin", "UL",
@@ -169,15 +169,16 @@ def stitching(fiji_dir, dirs, name_keys, prefix, template,
                     run_result = subprocess.run(final_args)
     os.chdir(old_dir)
     return(run_result.returncode)
-
+"""
 java_loc = '/Applications/Fiji.app'
-data_dir = '/Users/ConradOakes/Massachusetts Institute of Technology/GallowayLab - 2021.01.17.NT_FT_2dpi_timelapse/3dpi_timelapse/XY01_short'
+data_dir = '/Users/ConradOakes/Massachusetts Institute of Technology/GallowayLab - 2021.01.17.NT_FT_2dpi_timelapse/3dpi_timelapse/XY01_corr'
+sec_dir = '/Users/ConradOakes/Massachusetts Institute of Technology/GallowayLab - 2021.01.17.NT_FT_2dpi_timelapse/3dpi_timelapse/XY01_short'
 name_key = ["2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_CH1.tif", "2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_CH3_corrected.tiff",
              "2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_CH4.tif", "2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_Overlay.tif"]
 prefixes = ["CH1", "CH3", "CH4", "Overlay"]
 main_chan = 1
 output_dir = "/Users/ConradOakes/Desktop/Galloway_2021/py_test1"
 
-stitching(fiji_dir = java_loc, dirs = data_dir, name_keys = name_key, prefix = prefixes, template = main_chan,
+stitching(fiji_dir = java_loc, template_dir = data_dir, other_dir = sec_dir, name_keys = name_key, prefix = prefixes, template = main_chan,
               output = output_dir)
-        
+"""
