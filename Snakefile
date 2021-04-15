@@ -1,50 +1,70 @@
 from stitching_function import stitching
+configfile: "cellbaum_config.yml"
+
+import pathlib
+import os
+WELL = []
+for check in pathlib.Path(config["data_dir"]).iterdir():
+    if check.is_dir():
+        w = os.path.basename(os.path.normpath(check))
+        WELL.append(w)
+
+rule all:
+	input: 
+		expand(config["final_dir"]+'/{well}cell_data', well = WELL)
 
 rule find_corr:
 	input:
-		cp_app = "/Applications/CellProfiler.app/",
-		pipeline = "/Users/ConradOakes/CellBaum/illum_func.cppipe",
-		image_dir = "/Users/ConradOakes/Massachusetts Institute of Technology/GallowayLab - 2021.01.17.NT_FT_2dpi_timelapse/3dpi_timelapse/XY01_short"
+		image_dir = config["data_dir"] + '/{well}'
+	params:
+		cp_app = config["cp_loc"],
+		pipeline = config["pipe_loc"] + "/illum_func.cppipe"
+	log:
+		config["log_loc"] + "/{well}find_corr_log.txt"
 	output:
-		illum_func = "/Users/ConradOakes/Massachusetts Institute of Technology/GallowayLab - 2021.01.17.NT_FT_2dpi_timelapse/3dpi_timelapse/XY01_short/01_illum_func.npy"
+		illum_func = config["data_dir"] + '/{well}' + "/{well}_illum_func.npy"
 	shell:
-		"{input.cp_app}/Contents/MacOS/cp -c -r -p {input.pipeline:q} --output-directory {input.image_dir:q} --image-directory {input.image_dir:q}"
+		"{params.cp_app}/Contents/MacOS/cp -c -r -p {params.pipeline:q} --output-directory {input.image_dir:q} --image-directory {input.image_dir:q} &> {log}"
 
 rule apply_corr:
 	input:
-		cp_app = "/Applications/CellProfiler.app",
-		pipeline = "/Users/ConradOakes/CellBaum/apply_illum.cppipe",
-		image_dir = "/Users/ConradOakes/Massachusetts Institute of Technology/GallowayLab - 2021.01.17.NT_FT_2dpi_timelapse/3dpi_timelapse/XY01_short",
-		illum_func = "/Users/ConradOakes/Massachusetts Institute of Technology/GallowayLab - 2021.01.17.NT_FT_2dpi_timelapse/3dpi_timelapse/XY01_short/01_illum_func.npy"
+		image_dir = config["data_dir"] + '/{well}',
+		illum_func = config["data_dir"] + '/{well}' + "/{well}_illum_func.npy"
+	params:
+		cp_app = config["cp_loc"],
+		pipeline = config["pipe_loc"] + "/apply_illum.cppipe",
+	log:
+		config["log_loc"] + "/{well}apply_corr_log.txt"
 	output:
-		image_dir = directory("/Users/ConradOakes/Massachusetts Institute of Technology/GallowayLab - 2021.01.17.NT_FT_2dpi_timelapse/3dpi_timelapse/XY01_corr")
+		image_dir = directory(config["data_dir"] + "_corr/{well}")
 	shell:
-		"{input.cp_app}/Contents/MacOS/cp -c -r -p {input.pipeline:q} --output-directory {output.image_dir:q} --image-directory {input.image_dir:q}"
-
-Name_keys = lambda wildcards : ['2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_CH1.tif', '2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_CH3_corrected.tiff', 
-			'2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_CH4.tif', '2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_Overlay.tif']
-Prefix = ["CH1", "CH3", "CH4", "Overlay"]
+		"{params.cp_app}/Contents/MacOS/cp -c -r -p {params.pipeline:q} --output-directory {output.image_dir:q} --image-directory {input.image_dir:q} &> {log}"
 
 rule stitching:
 	input:
-		fiji_dir = '/Applications/Fiji.app',
-		main_dir = '/Users/ConradOakes/Massachusetts Institute of Technology/GallowayLab - 2021.01.17.NT_FT_2dpi_timelapse/3dpi_timelapse/XY01_corr',
-		sec_dir = '/Users/ConradOakes/Massachusetts Institute of Technology/GallowayLab - 2021.01.17.NT_FT_2dpi_timelapse/3dpi_timelapse/XY01_short'
+		main_dir = config["data_dir"] + "_corr/{well}",
+		sec_dir = config["data_dir"] + "/{well}"
 	params:
-		name_keys = Name_keys,
-		prefix = Prefix,
+		fiji_dir = config["fiji_loc"],
+		name_keys = lambda wildcards : config["Name_keys"],
+		prefix = config["Prefix"],
 		template = 1
+	log:
+		config["log_loc"] + "/{well}stitching_log.txt"
 	output:
-		stitch_dir = directory("/Users/ConradOakes/Desktop/Galloway_2021/py_test1")
+		stitch_dir = directory(config["final_dir"] + "/{well}py_test")
 	run:
-		stitching(input.fiji_dir, input.main_dir, input.sec_dir, params.name_keys, params.prefix, params.template, output.stitch_dir)
+		stitching(params.fiji_dir, input.main_dir, input.sec_dir, params.name_keys, params.prefix, params.template, output.stitch_dir, "{wildcards.well}", log[0])
 
 rule find_objects:
 	input:
-		cp_app = "/Applications/CellProfiler.app/",
-		pipeline = "/Users/ConradOakes/CellBaum/nuclei_masking.cppipe",
-		image_dir = "/Users/ConradOakes/Desktop/Galloway_2021/py_test1"
+		image_dir = config["final_dir"] + "/{well}py_test"
+	params:
+		cp_app = config["cp_loc"],
+		pipeline = config["pipe_loc"] + "/nuclei_masking.cppipe",
+	log:
+		config["log_loc"] + "/{well}find_objects_log.txt"
 	output:
-		object_dir = directory('/Users/ConradOakes/Desktop/Galloway_2021/cell_data')
+		object_dir = directory(config["final_dir"] + '/{well}cell_data')
 	shell:
-		"{input.cp_app}/Contents/MacOS/cp -c -r -p {input.pipeline:q} --output-directory {output.object_dir:q} --image-directory {input.image_dir:q}"
+		"{params.cp_app}/Contents/MacOS/cp -c -r -p {params.pipeline:q} --output-directory {output.object_dir:q} --image-directory {input.image_dir:q} &> {log}"

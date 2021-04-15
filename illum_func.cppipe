@@ -95,7 +95,7 @@ SaveImages:[module_num:6|svn_version:'Unknown'|variable_revision_number:15|show_
     Select the image to save:IllumRed
     Select method for constructing file names:Single name
     Select image name for file prefix:Red
-    Enter single file name:\g<XY>_illum_func
+    Enter single file name:XY\g<XY>_illum_func
     Number of digits:4
     Append a suffix to the image file name?:Yes
     Text to append to the image name:illum_func

@@ -28,7 +28,7 @@ scope_path: the microscopes path (defalut = HORIZONTALCONTINUOUS)
 java_run: path to Fiji's built in Java program
 """
 def stitching(fiji_dir, template_dir, other_dir, name_keys, prefix, template,
-              output, order = "SEQUENTIAL", 
+              output, well, log_filename = None, order = "SEQUENTIAL", 
               scope_path = "HORIZONTALCONTINUOUS", z_list = "1-3"):
     fiji_paths = pathlib.Path(fiji_dir)
     fiji_ops = fiji_paths.glob('java/**/bin/java')
@@ -47,6 +47,7 @@ def stitching(fiji_dir, template_dir, other_dir, name_keys, prefix, template,
             t = os.path.basename(os.path.normpath(image_set))
             start_file = name_keys[template]
             start_file = start_file.replace('time', t)
+            start_file = start_file.replace('well', well)
             #name the output file
             outfile = t+'_'+prefix[template]
             #switch to the java directory
@@ -105,13 +106,18 @@ def stitching(fiji_dir, template_dir, other_dir, name_keys, prefix, template,
             final_args = [java_run, '-cp', 
                                 "plugins/MIST_.jar:jars/*", 'gov.nist.isg.mist.MISTMain']+ args_primary
             #run NIST with arguments
-            run_result = subprocess.run(final_args)
+            if log_filename is None:
+                run_result = subprocess.run(final_args)
+            else:
+                with open(log_filename, 'w') as log:
+                    run_result = subprocess.run(final_args, stdout=log, stderr=log)
             #for each channel other than the template...
             for channel in range(len(prefix)):
                 if (channel) != template:
                     #set the name
                     channel_set =  name_keys[channel]
                     channel_set = channel_set.replace('time', t)
+                    channel_set = channel_set.replace('well', well)
                     #create arguments assembling from the template channel's metadata
                     args_secondary = [
                             "--gridWidth", '5',
@@ -166,7 +172,11 @@ def stitching(fiji_dir, template_dir, other_dir, name_keys, prefix, template,
                     final_args = [java_run, '-cp', 
                                 "plugins/MIST_.jar:jars/*", 'gov.nist.isg.mist.MISTMain']+ args_secondary
                     #run NIST with new arguments
-                    run_result = subprocess.run(final_args)
+                    if log_filename is None:
+                        run_result = subprocess.run(final_args)
+                    else:
+                        with open(log_filename, 'w') as log:
+                            run_result = subprocess.run(final_args, stdout=log, stderr=log)
     os.chdir(old_dir)
     return(run_result.returncode)
 """
