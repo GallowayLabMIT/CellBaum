@@ -1,0 +1,18 @@
+---
+"data_dir": /path/to/your/images
+"cp_loc": /path/to/cellprofiler
+"fiji_loc": /path/to/fiji
+"pipe_loc": /path/to/imageprocessing/cppipes
+"final_dir": /path/to/output/directory
+"log_loc": /path/to/logs
+"Name_keys":
+ - 2021.01.18_10X_time_well_000{pp}_Z{ttt}_CH1.tif
+ - 2021.01.18_10X_time_well_000{pp}_Z{ttt}_CH3_corrected.tiff
+ - 2021.01.18_10X_time_well_000{pp}_Z{ttt}_CH4.tif
+ - 2021.01.18_10X_time_well_000{pp}_Z{ttt}_Overlay.tif
+"Prefix": 
+ - "CH1"
+ - "CH3"
+ - "CH4"
+ - "Overlay"
+"Template": 1
