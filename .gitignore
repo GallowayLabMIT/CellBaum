@@ -2,3 +2,4 @@
 .DS_Store
 snakemake_logs
 cellbaum_config.yml
+.snakemake

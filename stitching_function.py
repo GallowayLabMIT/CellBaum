@@ -28,7 +28,7 @@ scope_path: the microscopes path (defalut = HORIZONTALCONTINUOUS)
 java_run: path to Fiji's built in Java program
 """
 def stitching(fiji_dir, template_dir, other_dir, name_keys, prefix, template,
-              output, well, log_filename = None, order = "SEQUENTIAL", 
+              output, log_filename = None, order = "SEQUENTIAL", 
               scope_path = "HORIZONTALCONTINUOUS", z_list = "1-3"):
     fiji_paths = pathlib.Path(fiji_dir)
     fiji_ops = fiji_paths.glob('java/**/bin/java')
@@ -38,6 +38,7 @@ def stitching(fiji_dir, template_dir, other_dir, name_keys, prefix, template,
             break
     else:
         raise RuntimeError("Explosion; no Java found")
+    well = os.path.basename(os.path.normpath(template_dir))
     old_dir = os.getcwd()
     # for each time point folder in the given directory....
     dir_path = pathlib.Path(template_dir)

@@ -36,10 +36,23 @@ rule apply_corr:
 	log:
 		config["log_loc"] + "/{well}apply_corr_log.txt"
 	output:
-		image_dir = directory(config["data_dir"] + "_corr/{well}")
+		image_dir = directory(config["data_dir"] + "_illum/{well}")
 	shell:
 		"{params.cp_app}/Contents/MacOS/cp -c -r -p {params.pipeline:q} --output-directory {output.image_dir:q} --image-directory {input.image_dir:q} &> {log}"
 
+rule process_image:
+	input: 
+		image_dir = config["data_dir"] + '_illum/{well}'
+	params:
+		cp_app = config["cp_loc"],
+		pipeline = config["pipe_loc"] + "/img_processing.cppipe",
+	log:
+		config["log_loc"] + "/{well}img_processing_log.txt"
+	output:
+		image_dir = directory(config["data_dir"] + "_corr/{well}")
+	shell:
+		"{params.cp_app}/Contents/MacOS/cp -c -r -p {params.pipeline:q} --output-directory {output.image_dir:q} --image-directory {input.image_dir:q} &> {log}"
+ 
 rule stitching:
 	input:
 		main_dir = config["data_dir"] + "_corr/{well}",
@@ -54,7 +67,7 @@ rule stitching:
 	output:
 		stitch_dir = directory(config["output_dir"] + "/{well}py_test")
 	run:
-		stitching(params.fiji_dir, input.main_dir, input.sec_dir, params.name_keys, params.prefix, params.template, output.stitch_dir, "{wildcards.well}", log[0])
+		stitching(params.fiji_dir, input.main_dir, input.sec_dir, params.name_keys, params.prefix, params.template, output.stitch_dir, log[0])
 
 rule find_objects:
 	input:
