@@ -105,7 +105,7 @@ SaveImages:[module_num:8|svn_version:'Unknown'|variable_revision_number:15|show_
     Enter single file name:OrigBlue
     Number of digits:4
     Append a suffix to the image file name?:Yes
-    Text to append to the image name:
+    Text to append to the image name:_threshold
     Saved file format:tiff
     Output file location:Default Output Folder|/Users/ConradOakes/Desktop/Galloway_2021/corr_dir
     Image bit depth:8-bit integer

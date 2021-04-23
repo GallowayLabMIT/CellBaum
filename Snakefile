@@ -1,4 +1,5 @@
 from stitching_function import stitching
+from btracker_tests import btracking
 configfile: "cellbaum_config.yml"
 
 import pathlib
@@ -11,8 +12,9 @@ for check in pathlib.Path(config["data_dir"]).iterdir():
 
 rule all:
 	input: 
-		expand(config["output_dir"]+'/{well}cell_data', well = WELL)
-
+		#expand(config["output_dir"]+'/{well}cell_data', well = WELL)
+		expand(config["output_dir"] + "/{well}btrack", well = WELL)
+""" 
 rule find_corr:
 	input:
 		image_dir = config["data_dir"] + '/{well}'
@@ -39,10 +41,10 @@ rule apply_corr:
 		image_dir = directory(config["data_dir"] + "_illum/{well}")
 	shell:
 		"{params.cp_app}/Contents/MacOS/cp -c -r -p {params.pipeline:q} --output-directory {output.image_dir:q} --image-directory {input.image_dir:q} &> {log}"
-
+ """
 rule process_image:
 	input: 
-		image_dir = config["data_dir"] + '_illum/{well}'
+		image_dir = config["data_dir"] + '/{well}'
 	params:
 		cp_app = config["cp_loc"],
 		pipeline = config["pipe_loc"] + "/img_processing.cppipe",
@@ -81,3 +83,15 @@ rule find_objects:
 		object_dir = directory(config["output_dir"] + '/{well}cell_data')
 	shell:
 		"{params.cp_app}/Contents/MacOS/cp -c -r -p {params.pipeline:q} --output-directory {output.object_dir:q} --image-directory {input.image_dir:q} &> {log}"
+
+rule btrack:
+	input:
+		main_dir = config["output_dir"] + '/{well}cell_data'
+	params:
+		cell_configs = config["cell_config"]
+	log:
+		config["log_loc"] + "/{well}btrack_log.txt"
+	output:
+		output_dir = directory(config["output_dir"] + "/{well}btrack")
+	run:
+		btracking(input.main_dir, params.cell_configs, output.output_dir)
