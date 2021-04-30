@@ -12,13 +12,14 @@ from btrack.render import plot_tracks
 import pandas as pd
 from btrack.dataio import export_CSV
 
-def btracking(input, cell_config, output):
+def btracking(input, cell_config, output, well):
   # creates objects to track
   objects = input + "/cell_locationsIdentifyPrimaryObjects.csv"
   objects = pd.read_csv(objects)
   formatted = objects.rename(columns={'Metadata_time' : 't', 'Location_Center_X' : 'x', 
                                       'Location_Center_Y' : 'y', 'Metadata_zstep' : 'z'})
   formatted = formatted[['t', 'x', 'y', 'z']]
+  formatted = formatted[formatted['z'] == 1]
   objects_to_track = localizations_to_objects(formatted)
 
   # initialise a tracker session using a context manager
@@ -38,11 +39,10 @@ def btracking(input, cell_config, output):
     # get the tracks as a python list
     tracks = tracker.tracks
     # get the first track
-    track_zero = tracks[0]  
     for n in range(len(tracks)):
-        if len(tracks[n].children) > 0:
-            print("got him")
-            break
+      if len(tracks[n].children) > 0:
+        print("got him")
+        break
     """
     generation_q = [n]
     generation_track = []
@@ -52,16 +52,7 @@ def btracking(input, cell_config, output):
       print(generation_q)
       print(generation_track)
       del generation_q[0] """
-    track_good = tracks[n-1]
-    # print the length of the track
-    print(len(track_good))
-    # print all of the xyzt positions in the track
-    print(track_good.x)
-    print(track_good.y)
-    print(track_good.z)
-    print(track_good.t)
-    # print the fate of the track
-    print(track_good.fate)
+    track_good = tracks[n]
     # print the track ID, root node, parent node, children and generational depth
     print(track_good.ID)
     print(track_good.root)
@@ -69,12 +60,12 @@ def btracking(input, cell_config, output):
     print(track_good.children)
     print(track_good.generation)
     # display tracks in 3D space
-    box = tracker.volume
-    plot_tracks(tracks, order='xyt', box=box)
+    #box = tracker.volume
+    #plot_tracks(tracks, order='xyt', box=box)
     # export tracks in CSV format
-    export_CSV(output+'/tracks.csv', tracks)
+    export_CSV(output+'/'+well+'tracks.csv', tracks)
 
-data = '/Users/ConradOakes/Desktop/Galloway_2021/XY01cell_data'
-save = "/Users/ConradOakes/Desktop/Galloway_2021/bstack_tests"
-cell_configs = '/Users/ConradOakes/BayesianTracker/models/cell_config.json'
-btracking(data, cell_configs, save)
+#data = '/Users/ConradOakes/Desktop/Galloway_2021/XY02cell_data'
+#save = "/Users/ConradOakes/Desktop/Galloway_2021/bstack_tests"
+#cell_configs = '/Users/ConradOakes/BayesianTracker/models/cell_config.json'
+#btracking(data, cell_configs, save)

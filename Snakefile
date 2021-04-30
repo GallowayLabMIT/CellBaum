@@ -13,7 +13,7 @@ for check in pathlib.Path(config["data_dir"]).iterdir():
 rule all:
 	input: 
 		#expand(config["output_dir"]+'/{well}cell_data', well = WELL)
-		expand(config["output_dir"] + "/{well}btrack", well = WELL)
+		expand(config["output_dir"] + "/btrack_results/{well}tracks.csv", well = WELL)
 """ 
 rule find_corr:
 	input:
@@ -86,12 +86,14 @@ rule find_objects:
 
 rule btrack:
 	input:
-		main_dir = config["output_dir"] + '/{well}cell_data'
+		main_dir = config["output_dir"] + '/{well}cell_data',
+		output_dir = config["output_dir"] + "/btrack_results"
 	params:
-		cell_configs = config["cell_config"]
+		cell_configs = config["cell_config"],
+		w = "{well}"
 	log:
 		config["log_loc"] + "/{well}btrack_log.txt"
 	output:
-		output_dir = directory(config["output_dir"] + "/{well}btrack")
+		final_data = (config["output_dir"] + "/btrack_results/{well}tracks.csv")
 	run:
-		btracking(input.main_dir, params.cell_configs, output.output_dir)
+		btracking(input.main_dir, params.cell_configs, input.output_dir, params.w)
