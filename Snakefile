@@ -1,5 +1,5 @@
 from stitching_function import stitching
-from btracker_tests import btracking
+from btracker import btracking
 configfile: "cellbaum_config.yml"
 
 import pathlib
@@ -13,7 +13,7 @@ for check in pathlib.Path(config["data_dir"]).iterdir():
 rule all:
 	input: 
 		#expand(config["output_dir"]+'/{well}cell_data', well = WELL)
-		expand(config["output_dir"] + "/btrack_results/{well}tracks.csv", well = WELL)
+		expand(config["output_dir"] + "/btrack_results/{well}_velocity.csv", well = WELL)
 """ 
 rule find_corr:
 	input:
@@ -90,10 +90,11 @@ rule btrack:
 		output_dir = config["output_dir"] + "/btrack_results"
 	params:
 		cell_configs = config["cell_config"],
-		w = "{well}"
+		w = "{well}",
+		t_scale = config["Time_Scale"]
 	log:
 		config["log_loc"] + "/{well}btrack_log.txt"
 	output:
-		final_data = (config["output_dir"] + "/btrack_results/{well}tracks.csv")
+		final_data = (config["output_dir"] + "/btrack_results/{well}_velocity.csv")
 	run:
-		btracking(input.main_dir, params.cell_configs, input.output_dir, params.w)
+		btracking(input.main_dir, params.cell_configs, input.output_dir, params.w, params.t_scale)
