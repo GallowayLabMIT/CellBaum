@@ -91,10 +91,11 @@ rule btrack:
 	params:
 		cell_configs = config["cell_config"],
 		w = "{well}",
-		t_scale = config["Time_Scale"]
+		t_scale = config["Time_Scale"],
+		t_min = config["Minimum_Time"]
 	log:
 		config["log_loc"] + "/{well}btrack_log.txt"
 	output:
 		final_data = (config["output_dir"] + "/btrack_results/{well}_velocity.csv")
 	run:
-		btracking(input.main_dir, params.cell_configs, input.output_dir, params.w, params.t_scale)
+		btracking(input.main_dir, params.cell_configs, input.output_dir, params.w, params.t_scale, params.t_min)
