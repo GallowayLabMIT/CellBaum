@@ -12,7 +12,7 @@ def val_env(dir):
     if cp_run.exists() == False:
         raise RuntimeError('Unable to locate Cell profiler binary')
     
-    fiji_ops = paths.glob('Fiji*')
+    fiji_ops = paths.glob('Fiji.app')
     for fpath in fiji_ops:
         if fpath.exists():
             fiji_run = fpath
@@ -20,7 +20,7 @@ def val_env(dir):
     if fiji_run.exists() == False:
         raise RuntimeError('Unable to locate Fiji app')
 
-    java_ops = paths.glob('Fiji*/java/**/bin/java')
+    java_ops = paths.glob('Fiji*/java/**/bin/java*')
     for jpath in java_ops:
         if jpath.stem == 'java':
             java_run = jpath
