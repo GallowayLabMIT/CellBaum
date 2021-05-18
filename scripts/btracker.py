@@ -12,10 +12,21 @@ from btrack.render import plot_tracks
 import pandas as pd
 from btrack.dataio import export_CSV
 #import napari
-import numpy as np
 
+"""
+Uses BTracker to generate h5 files of cell tracks. 
 
-def btracking(input, cell_config, output, well, t_scales, min_t):
+input: path to the folder with cell_data
+cell_config: path to json with the cell_config model
+output: the output directory
+well: the well being tracked
+update: either 'EXACT' or 'APPROXIMATE'
+search: the minimum search distance (default = 100)
+volume: the size of the area being tracked
+step: time step for tracking
+"""
+def btracking(input, cell_config, output, well, update = 'EXACT', 
+  search = 100, vol = ((0,3700),(0,2800),(0,4)), step = 1):
   # creates objects to track
   objects = input + "/cell_locationsIdentifyPrimaryObjects.csv"
   objects = pd.read_csv(objects)
@@ -24,27 +35,23 @@ def btracking(input, cell_config, output, well, t_scales, min_t):
   formatted = formatted[['t', 'x', 'y', 'z']]
   formatted = formatted[formatted['z'] == 1]
   objects_to_track = localizations_to_objects(formatted)
-
   # initialise a tracker session using a context manager
   with btrack.BayesianTracker() as tracker:
     # configure the tracker using a config file
     tracker.configure_from_file(cell_config)
-    tracker.update_method = BayesianUpdates.EXACT
-    tracker.max_search_radius = 100
+    if update == 'EXACT':
+      tracker.update_method = BayesianUpdates.EXACT
+    else:
+      tracker.update_method = BayesianUpdates.APPROXIMATE
+    tracker.max_search_radius = search
     # append the objects to be tracked
     tracker.append(objects_to_track)
     # set the volume (Z axis volume is set very large for 2D data)
-    tracker.volume=((0,3700),(0,2800),(0,4))
+    tracker.volume= vol
     # track them (in interactive mode)
-    tracker.track_interactive(step_size=1)
+    tracker.track_interactive(step_size=step)
     # generate hypotheses and run the global optimizer
     tracker.optimize()
-    # get the tracks as a python list
-    tracks = tracker.tracks
-    #get cell velocities
-    v_track = []
-    for cell in tracks:
-      v_track += [find_cell_velocity(cell, t_scales, min_t)]
     """
     # Below used for visualizing in napari
     gen = 0
@@ -86,37 +93,13 @@ def btracking(input, cell_config, output, well, t_scales, min_t):
     napari.view_tracks(data, properties=properties, graph=graph, name = 'Tracks')
     napari.run()
     """
-    # export tracks in h5 format and velocities in csv format
+    # export tracks in h5 formats
     tracker.export(output+'/'+well+'tracks.h5', obj_type='obj_type_1')
-    v_track = pd.DataFrame({'velocity':v_track})
-    v_track.to_csv(output+'/'+well+'_velocity.csv')
-
-def find_cell_velocity(track, t_scale=1, t_min=2):
-  #if there are not enough points to calculate movement, returns NA
-  if len(track.t) <= 1 or len(track.t) < t_min:
-    return np.nan
-  else:
-    x_vals = track.x
-    y_vals = track.y
-    z_vals = track.z
-    t_vals = track.t
-    vel = []
-    # for every sequential set of points, calculates distance between them
-    for point in range(len(x_vals)-1):
-      x = ((x_vals[point])-(x_vals[point+1]))**2
-      y = ((y_vals[point])-(y_vals[point+1]))**2
-      z = ((z_vals[point])-(z_vals[point+1]))**2
-      t = abs((t_vals[point])-(t_vals[point+1]))
-      d = np.sqrt(x+y+z)
-      vel += [d/(t*t_scale)]
-    # averages the velocities of all sequential sets of points
-    v = sum(vel)/len(vel)
-    return v
   
 """
 data = '/Users/ConradOakes/Desktop/Galloway_2021/XY02cell_data'
 save = "/Users/ConradOakes/Desktop/Galloway_2021/bstack_tests"
 cell_configs = '/Users/ConradOakes/BayesianTracker/models/cell_config.json'
 well = 'XY02'
-btracking(data, cell_configs, save, well, 15, 2)
+btracking(data, cell_configs, save, well)
 """
