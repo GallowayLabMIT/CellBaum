@@ -4,3 +4,4 @@ snakemake_logs
 cellbaum_config.yml
 .snakemake
 output
+cenv
