@@ -7,7 +7,7 @@ configfile: "cellbaum_config.yml"
 from pathlib import Path
 import os
 #find required apps
-cp_app, fiji_app, java_app = val_env(config["base_dir"])
+cp_app, fiji_app, java_app = val_env(Path(config["cp_dir"]), Path(config["fiji_dir"]))
 #generate list of wells
 WELL = []
 for check in Path(config["data_dir"]).iterdir():
