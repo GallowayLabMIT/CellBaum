@@ -11,6 +11,7 @@ from btrack.dataio import localizations_to_objects
 from btrack.render import plot_tracks
 import pandas as pd
 from btrack.dataio import export_CSV
+from pathlib import Path
 #import napari
 
 """
@@ -28,7 +29,7 @@ step: time step for tracking
 def btracking(input, cell_config, output, well, update = 'EXACT', 
   search = 100, vol = ((0,3700),(0,2800),(0,4)), step = 1):
   # creates objects to track
-  objects = input + "/cell_locationsIdentifyPrimaryObjects.csv"
+  objects = Path(input) / "cell_locationsIdentifyPrimaryObjects.csv"
   objects = pd.read_csv(objects)
   formatted = objects.rename(columns={'Metadata_time' : 't', 'Location_Center_X' : 'x', 
                                       'Location_Center_Y' : 'y', 'Metadata_zstep' : 'z'})
@@ -38,7 +39,7 @@ def btracking(input, cell_config, output, well, update = 'EXACT',
   # initialise a tracker session using a context manager
   with btrack.BayesianTracker() as tracker:
     # configure the tracker using a config file
-    tracker.configure_from_file(cell_config)
+    tracker.configure_from_file(Path(cell_config))
     if update == 'EXACT':
       tracker.update_method = BayesianUpdates.EXACT
     else:
@@ -94,10 +95,10 @@ def btracking(input, cell_config, output, well, update = 'EXACT',
     napari.run()
     """
     # export tracks in h5 formats
-    tracker.export(output+'/'+well+'tracks.h5', obj_type='obj_type_1')
+    tracker.export(Path(output)/(well+'tracks.h5'), obj_type='obj_type_1')
   
 """
-data = '/Users/ConradOakes/Desktop/Galloway_2021/XY02cell_data'
+data = '/Users/ConradOakes/CellBaum/output/XY02cell_data'
 save = "/Users/ConradOakes/Desktop/Galloway_2021/bstack_tests"
 cell_configs = '/Users/ConradOakes/BayesianTracker/models/cell_config.json'
 well = 'XY02'

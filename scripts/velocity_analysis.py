@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn
 import h5py
+from pathlib import Path
 
 """
 Calculates average velocity of a cell along its track.
@@ -36,7 +37,7 @@ min_t: minimum points in time that should be in the track's data to calculate ve
 """
 def well_to_vel(data, well, t_scaling = 1, min_t = 2):
   #get cell velocities
-  v_track = h5py.File(data + '/' + well+'tracks.h5')
+  v_track = h5py.File(data/(well+'tracks.h5'))
   #gets more convenient names for dataframes in the h5 file
   objects = v_track['objects']['obj_type_1']
   tracks = v_track['tracks']['obj_type_1']
@@ -44,6 +45,14 @@ def well_to_vel(data, well, t_scaling = 1, min_t = 2):
   convert = tracks['tracks']
   cells = objects['coords']
   dummies = tracks['dummies']
+  gen = 0
+  counter = 0
+  for cell in tracks['LBEPR']:
+    if cell[5] > 0:
+      counter +=1
+    if cell[5] > gen:
+      gen = cell[5]
+  print(well, gen, counter, len(tracks['LBEPR']))
   vel = []
   # for each track, gets all relevant object points
   for row in map:
@@ -69,7 +78,7 @@ def well_to_vel(data, well, t_scaling = 1, min_t = 2):
 well_list = ['XY01', 'XY02', 'XY03', 'XY04']
 type_list = ['None', '6F', '6FDD', '6FDDRR']
 data = {}
-dir = "/Users/ConradOakes/CellBaum/output/btrack_results/"
+dir = Path("/Users/ConradOakes/CellBaum/output/btrack_results/")
 
 for well in range(len(well_list)):
     data[type_list[well]] = well_to_vel(dir, well_list[well], t_scaling = 15, min_t = 5)
