@@ -1,9 +1,9 @@
-import pathlib
+from pathlib import Path
 
 def val_env(dir):
-    paths = pathlib.Path(dir)
+    paths = Path(dir)
 
-    for search in ['CellProfiler*/**/cp', '**/CellProfiler.exe']:
+    for search in [str(Path('CellProfiler*/**/cp')), str(Path('**/CellProfiler.exe'))]:
         found_files = paths.glob(search)
         for file in found_files:
             if file.exists():
@@ -20,7 +20,7 @@ def val_env(dir):
     if fiji_run.exists() == False:
         raise RuntimeError('Unable to locate Fiji app')
 
-    java_ops = paths.glob('Fiji*/java/**/bin/java*')
+    java_ops = paths.glob(str(Path('Fiji*/java/**/bin/java*')))
     for jpath in java_ops:
         if jpath.stem == 'java':
             java_run = jpath

@@ -7,7 +7,7 @@ Created on Thu Mar  4 23:48:30 2021
 """
 import subprocess
 import os
-import pathlib
+from pathlib import Path
 
 """
 Uses NIST to stitch together sets of images. Requires the Fiji application to 
@@ -32,10 +32,12 @@ z_list: number of z levels
 def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, template,
               output, log_filename = None, order = "SEQUENTIAL", 
               scope_path = "HORIZONTALCONTINUOUS", z_list = "1-3"):
+    output = Path(output)
+    other_dir = Path(other_dir)
     well = os.path.basename(os.path.normpath(template_dir))
     old_dir = os.getcwd()
     # for each time point folder in the given directory....
-    dir_path = pathlib.Path(template_dir)
+    dir_path = Path(template_dir)
     for image_set in dir_path.iterdir():
         if image_set.is_dir():
             #create the regular expression for each image in that folder
@@ -67,7 +69,7 @@ def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, te
                     "--extentHeight", '5',
                     "--timeSlices", z_list,
                     "--isTimeSlicesEnabled", 'True',
-                    "--outputPath", output,
+                    "--outputPath", str(output),
                     "--displayStitching", 'False',
                     "--outputFullImage", 'True',
                     "--outputMeta", 'True',
@@ -80,10 +82,10 @@ def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, te
                     "--loadFFTWPlan", 'True',
                     "--saveFFTWPlan", 'True',
                     '--fftwPlanType', "MEASURE",
-                    '--fftwLibraryName', "/libfftw3",
-                    '--fftwLibraryFilename', "/libfftw3.dll",
-                    '--planPath', "/lib/fftw/fftPlans",
-                    '--fftwLibraryPath', "/lib/fftw",
+                    '--fftwLibraryName', str(Path("/libfftw3")),
+                    '--fftwLibraryFilename', str(Path("/libfftw3.dll")),
+                    '--planPath', str(Path("/lib/fftw/fftPlans")),
+                    '--fftwLibraryPath', str(Path("/lib/fftw")),
                     '--stageRepeatability', '0',
                     '--horizontalOverlap', "NaN",
                     '--verticalOverlap', "NaN",
@@ -118,7 +120,7 @@ def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, te
                     "--extentHeight", '5',
                     "--timeSlices", z_list,
                     "--isTimeSlicesEnabled", 'True',
-                    "--outputPath", output,
+                    "--outputPath", str(output),
                     "--displayStitching", 'False',
                     "--outputFullImage", 'True',
                     "--outputMeta", 'True',
@@ -131,10 +133,10 @@ def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, te
                     "--loadFFTWPlan", 'True',
                     "--saveFFTWPlan", 'True',
                     '--fftwPlanType', "MEASURE",
-                    '--fftwLibraryName', "/libfftw3",
-                    '--fftwLibraryFilename', "/libfftw3.dll",
-                    '--planPath', "/lib/fftw/fftPlans",
-                    '--fftwLibraryPath', "/lib/fftw",
+                    '--fftwLibraryName', str(Path("/libfftw3")),
+                    '--fftwLibraryFilename', str(Path("/libfftw3.dll")),
+                    '--planPath', str(Path("/lib/fftw/fftPlans")),
+                    '--fftwLibraryPath', str(Path("/lib/fftw")),
                     '--stageRepeatability', '0',
                     '--horizontalOverlap', "NaN",
                     '--verticalOverlap', "NaN",
@@ -151,7 +153,7 @@ def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, te
                     '--debugLevel', "NONE"
                     ]
             final_args = [java_dir, '-cp', 
-                                "plugins/MIST_.jar:jars/*", 'gov.nist.isg.mist.MISTMain']+ args_primary
+                                str(Path("plugins/MIST_.jar:jars/*")), 'gov.nist.isg.mist.MISTMain']+ args_primary
             #run NIST with arguments
             if log_filename is None:
                 run_result = subprocess.run(final_args)
@@ -166,18 +168,18 @@ def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, te
                     channel_set = channel_set.replace('time', t)
                     channel_set = channel_set.replace('well', well)
                     #create arguments assembling from the template channel's metadata
-                    if " " in other_dir:
+                    if " " in str(other_dir):
                         args_secondary = [
                                 "--gridWidth", '5',
                                 "--gridHeight", '5',
                                 "--startTile", '1',
-                                "--imageDir", "'"+other_dir + "/"+ t+"'",
+                                "--imageDir", "'"+str(other_dir/t)+"'",
                                 "--filenamePattern", channel_set,
                                 "--filenamePatternType", order,
                                 "--gridOrigin", "UL",
                                 "--assembleFromMetadata", 'True',
                                 "--assembleNoOverlap", 'False',
-                                "--globalPositionsFile", output+'/'+outfile+ 'global-positions-{t}.txt',
+                                "--globalPositionsFile", str(output/(outfile+ 'global-positions-{t}.txt')),
                                 "--numberingPattern", scope_path,
                                 "--startRow", '0',
                                 "--startCol", '0',
@@ -185,7 +187,7 @@ def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, te
                                 "--extentHeight", '5',
                                 "--timeSlices", z_list,
                                 "--isTimeSlicesEnabled", 'True',
-                                "--outputPath", output,
+                                "--outputPath", str(output),
                                 "--displayStitching", 'False',
                                 "--outputFullImage", 'True',
                                 "--outputMeta", 'True',
@@ -198,10 +200,10 @@ def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, te
                                 "--loadFFTWPlan", 'True',
                                 "--saveFFTWPlan", 'True',
                                 '--fftwPlanType', "MEASURE",
-                                '--fftwLibraryName', "libfftw3",
-                                '--fftwLibraryFilename', "libfftw3.dll",
-                                '--planPath', "lib/fftw/fftPlans",
-                                '--fftwLibraryPath', "lib/fftw",
+                                '--fftwLibraryName', str(Path("libfftw3")),
+                                '--fftwLibraryFilename', str(Path("libfftw3.dll")),
+                                '--planPath', str(Path("lib/fftw/fftPlans")),
+                                '--fftwLibraryPath', str(Path("lib/fftw")),
                                 '--stageRepeatability', '0',
                                 '--horizontalOverlap', "NaN",
                                 '--verticalOverlap', "NaN",
@@ -222,13 +224,13 @@ def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, te
                             "--gridWidth", '5',
                             "--gridHeight", '5',
                             "--startTile", '1',
-                            "--imageDir", other_dir + "/"+ t,
+                            "--imageDir", str(other_dir/t),
                             "--filenamePattern", channel_set,
                             "--filenamePatternType", order,
                             "--gridOrigin", "UL",
                             "--assembleFromMetadata", 'True',
                             "--assembleNoOverlap", 'False',
-                            "--globalPositionsFile", output+'/'+outfile+ 'global-positions-{t}.txt',
+                            "--globalPositionsFile", str(output/(outfile+ 'global-positions-{t}.txt')),
                             "--numberingPattern", scope_path,
                             "--startRow", '0',
                             "--startCol", '0',
@@ -236,7 +238,7 @@ def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, te
                             "--extentHeight", '5',
                             "--timeSlices", z_list,
                             "--isTimeSlicesEnabled", 'True',
-                            "--outputPath", output,
+                            "--outputPath", str(output),
                             "--displayStitching", 'False',
                             "--outputFullImage", 'True',
                             "--outputMeta", 'True',
@@ -249,10 +251,10 @@ def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, te
                             "--loadFFTWPlan", 'True',
                             "--saveFFTWPlan", 'True',
                             '--fftwPlanType', "MEASURE",
-                            '--fftwLibraryName', "libfftw3",
-                            '--fftwLibraryFilename', "libfftw3.dll",
-                            '--planPath', "lib/fftw/fftPlans",
-                            '--fftwLibraryPath', "lib/fftw",
+                            '--fftwLibraryName', str(Path("libfftw3")),
+                            '--fftwLibraryFilename', str(Path("libfftw3.dll")),
+                            '--planPath', str(Path("lib/fftw/fftPlans")),
+                            '--fftwLibraryPath', str(Path("lib/fftw")),
                             '--stageRepeatability', '0',
                             '--horizontalOverlap', "NaN",
                             '--verticalOverlap', "NaN",
@@ -269,7 +271,7 @@ def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, te
                             '--debugLevel', "NONE"
                             ]
                     final_args = [java_dir, '-cp', 
-                                "plugins/MIST_.jar:jars/*", 'gov.nist.isg.mist.MISTMain']+ args_secondary
+                                str(Path("plugins/MIST_.jar:jars/*")), 'gov.nist.isg.mist.MISTMain']+ args_secondary
                     #run NIST with new arguments
                     if log_filename is None:
                         run_result = subprocess.run(final_args)
@@ -280,15 +282,15 @@ def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, te
     return(run_result.returncode)
 
 """
-fiji_loc = '/Applications/Fiji.app'
-java_loc = '/Applications/Fiji.app/java/macosx/adoptopenjdk-8.jdk/jre/Contents/Home/bin/java'
-data_dir = '/Users/ConradOakes/Massachusetts Institute of Technology/GallowayLab - 2021.01.17.NT_FT_2dpi_timelapse/3dpi_timelapse_corr/XY01'
-sec_dir = '/Users/ConradOakes/Massachusetts Institute of Technology/GallowayLab - 2021.01.17.NT_FT_2dpi_timelapse/3dpi_timelapse/XY01'
+fiji_loc = Path('/Applications/Fiji.app')
+java_loc = Path('/Applications/Fiji.app/java/macosx/adoptopenjdk-8.jdk/jre/Contents/Home/bin/java')
+data_dir = Path('/Users/ConradOakes/Massachusetts Institute of Technology/GallowayLab - 2021.01.17.NT_FT_2dpi_timelapse/3dpi_timelapse_corr/XY01')
+sec_dir = Path('/Users/ConradOakes/Massachusetts Institute of Technology/GallowayLab - 2021.01.17.NT_FT_2dpi_timelapse/3dpi_timelapse/XY01')
 name_key = ["2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_CH1.tif", "2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_CH3_threshold.tiff",
              "2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_CH4.tif", "2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_Overlay.tif"]
 prefixes = ["CH1", "CH3", "CH4", "Overlay"]
 main_chan = 1
-output_dir = "/Users/ConradOakes/Desktop/Galloway_2021/py_test"
+output_dir = Path("/Users/ConradOakes/Desktop/Galloway_2021/py_test")
 
 stitching(fiji_dir = fiji_loc, java_dir = java_loc, template_dir = data_dir, other_dir = sec_dir, name_keys = name_key, prefix = prefixes, template = main_chan,
               output = output_dir)
