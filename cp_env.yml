@@ -1,0 +1,15 @@
+name: cp4
+
+channels:
+ - conda-forge
+ - bioconda
+dependencies:
+      - numpy
+      - matplotlib
+      - pandas
+      - mysqlclient
+      - openjdk
+      - gtk2
+      - wxpython
+      - pip:
+	- cellprofiler
