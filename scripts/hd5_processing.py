@@ -4,9 +4,8 @@ import h5py
 import shutil
 from pathlib import Path
 
-def add_to_h5(dir, well, to_save):
-    cp_loc = dir / (well+"cell_data") / "cell_locationsIdentifyPrimaryObjects.csv"
-    cp_data = pd.read_csv(cp_loc)
+def add_to_h5(cp_csv, well, to_save):
+    cp_data = pd.read_csv(cp_csv)
     v_track = dir / 'btrack_results' / (well+'tracks.h5')
     cp_track = dir / 'btrack_results' / (well+'tracks_cp.h5')
     shutil.copy (v_track, cp_track)

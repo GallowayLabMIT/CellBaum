@@ -17,20 +17,20 @@ from pathlib import Path
 """
 Uses BTracker to generate h5 files of cell tracks. 
 
-input: path to the folder with cell_data
+input_csv: path to the file containing CellProfiler-exported data.
 cell_config: path to json with the cell_config model
-output: the output directory
+output_file: the output h5 file write
 well: the well being tracked
 update: either 'EXACT' or 'APPROXIMATE'
 search: the minimum search distance (default = 100)
 volume: the size of the area being tracked
 step: time step for tracking
 """
-def btracking(input, cell_config, output, well, update = 'EXACT', 
+def btracking(input_csv, cell_config, output, well, update = 'EXACT', 
   search = 100, vol = ((0,3700),(0,2800),(0,4)), step = 1):
   # creates objects to track
-  objects = Path(input) / "cell_locationsIdentifyPrimaryObjects.csv"
-  objects = pd.read_csv(objects)
+  #objects = Path(input) / "cell_locationsIdentifyPrimaryObjects.csv"
+  objects = pd.read_csv(input_csv)
   formatted = objects.rename(columns={'Metadata_time' : 't', 'Location_Center_X' : 'x', 
                                       'Location_Center_Y' : 'y', 'Metadata_zstep' : 'z'})
   formatted = formatted[['t', 'x', 'y', 'z']]
@@ -95,7 +95,7 @@ def btracking(input, cell_config, output, well, update = 'EXACT',
     napari.run()
     """
     # export tracks in h5 formats
-    tracker.export(Path(output)/(well+'tracks.h5'), obj_type='obj_type_1')
+    tracker.export(output_file, obj_type='obj_type_1')
   
 """
 data = '/Users/ConradOakes/CellBaum/output/XY02cell_data'
