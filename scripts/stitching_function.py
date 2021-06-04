@@ -6,6 +6,7 @@ Created on Thu Mar  4 23:48:30 2021
 @author: ConradOakes
 """
 import subprocess
+import sys
 import os
 from pathlib import Path
 
@@ -152,8 +153,14 @@ def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, te
                     '--logLevel', "MANDATORY",
                     '--debugLevel', "NONE"
                     ]
+            jar_paths = ["plugins/MIST_.jar", "jars/*"]
+            if sys.platform.startswith('win32'):
+                separator = ';'
+            else:
+                separator = ':'
+            classpath = separator.join(jar_paths)
             final_args = [java_dir, '-cp', 
-                                str(Path("plugins/MIST_.jar:jars/*")), 'gov.nist.isg.mist.MISTMain']+ args_primary
+                                classpath, 'gov.nist.isg.mist.MISTMain']+ args_primary
             #run NIST with arguments
             if log_filename is None:
                 run_result = subprocess.run(final_args)
