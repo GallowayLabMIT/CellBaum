@@ -26,7 +26,7 @@ search: the minimum search distance (default = 100)
 volume: the size of the area being tracked
 step: time step for tracking
 """
-def btracking(input_csv, cell_config, output, well, update = 'EXACT', 
+def btracking(input_csv, cell_config, output_file, update = 'EXACT', 
   search = 100, vol = ((0,3700),(0,2800),(0,4)), step = 1):
   # creates objects to track
   #objects = Path(input) / "cell_locationsIdentifyPrimaryObjects.csv"
@@ -95,12 +95,12 @@ def btracking(input_csv, cell_config, output, well, update = 'EXACT',
     napari.run()
     """
     # export tracks in h5 formats
-    tracker.export(output_file, obj_type='obj_type_1')
+    tracker.export(str(output_file), obj_type='obj_type_1')
   
 """
-data = '/Users/ConradOakes/CellBaum/output/XY02cell_data'
-save = "/Users/ConradOakes/Desktop/Galloway_2021/bstack_tests"
-cell_configs = '/Users/ConradOakes/BayesianTracker/models/cell_config.json'
-well = 'XY02'
+data = Path('/Users/ConradOakes/CellBaum/output/XY01cell_data/cell_locationsIdentifyPrimaryObjects.csv')
+save = Path("/Users/ConradOakes/CellBaum/output/btrack_results/XY01tracks.h5")
+cell_configs = Path('/Users/ConradOakes/BayesianTracker/models/cell_config.json')
+well = 'XY01'
 btracking(data, cell_configs, save, well)
 """
