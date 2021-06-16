@@ -15,5 +15,6 @@ dependencies:
   - wxpython=4.1.0
   - mysqlclient=1.4.4
   - sentry-sdk=0.18.0
+  - pip
   - pip:
     - cellprofiler==4.1.3
