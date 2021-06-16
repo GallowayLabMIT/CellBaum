@@ -21,6 +21,14 @@ You will need to install CellProfiler and Fiji (with the MIST plugin) for CellBa
 Normally, you'll want to do this outside of the environment, as both tools are useful
 as GUI tools.
 
+Afterwards, you can activate the local environment with:
+```
+{conda,mamba} activate ./cenv
+```
+Note that you *must* use a relative or absolute path (e.g. include the `./`), this is how Conda identifies locally installed environments versus named, global environments.
+
+## Cluster/headless/Linux install
+
 If you need to install CellProfiler within Conda (e.g. on a cluster), you should update the environment
 with the CellProfiler addons:
 
@@ -32,10 +40,14 @@ if you are using a named/user-global environment, specify the name instead of th
 {conda,mamba} env update --name --file cp_addons.yml
 ```
 
+Fiji is technically available through Conda, but the version it installs is very old (2017). It is recommended that  you download the latest Fiji installation for your operating system, then install MIST. If you are running on a headless system (a cluster), you can install MIST through the command line with:
 
-Afterwards, you can activate the local environment with:
 ```
-{conda,mamba} activate ./cenv
+./path/to/ImageJ-YOUR_OS --update add-update-site MIST https://sites.imagej.net/NIST-ISG-MIST/
+./path/to/ImageJ-YOUR_OS --update update
 ```
-Note that you *must* use a relative or absolute path (e.g. include the `./`), this is how Conda identifies locally installed environments versus named, global environments.
+For example, on Linux, the first command could be 
+```
+wherever/you/put/Fiji.app/ImageJ-linux64 --update add-update-site MIST https://sites.imagej.net/NIST-ISG-MIST/
+```
 
