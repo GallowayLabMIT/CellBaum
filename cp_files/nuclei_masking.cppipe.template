@@ -96,21 +96,7 @@ MeasureObjectSizeShape:[module_num:6|svn_version:'Unknown'|variable_revision_num
     Calculate the Zernike features?:No
     Calculate the advanced features?:No
 
-MaskImage:[module_num:7|svn_version:'Unknown'|variable_revision_number:3|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
-    Select the input image:Red
-    Name the output image:MaskRed
-    Use objects or an image as a mask?:Objects
-    Select object for mask:IdentifyPrimaryObjects
-    Select image for mask:None
-    Invert the mask?:No
-
-ConvertObjectsToImage:[module_num:8|svn_version:'Unknown'|variable_revision_number:1|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
-    Select the input objects:IdentifyPrimaryObjects
-    Name the output image:Obj_Image
-    Select the color format:Color
-    Select the colormap:Default
-
-ExportToSpreadsheet:[module_num:9|svn_version:'Unknown'|variable_revision_number:13|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+ExportToSpreadsheet:[module_num:7|svn_version:'Unknown'|variable_revision_number:13|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the column delimiter:Comma (",")
     Add image metadata columns to your object data file?:Yes
     Add image file and folder names to your object data file?:No
@@ -133,6 +119,20 @@ ExportToSpreadsheet:[module_num:9|svn_version:'Unknown'|variable_revision_number
     Combine these object measurements with those of the previous object?:No
     File name:DATA.csv
     Use the object name for the file name?:Yes
+
+MaskImage:[module_num:8|svn_version:'Unknown'|variable_revision_number:3|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+    Select the input image:Red
+    Name the output image:MaskRed
+    Use objects or an image as a mask?:Objects
+    Select object for mask:IdentifyPrimaryObjects
+    Select image for mask:None
+    Invert the mask?:No
+
+ConvertObjectsToImage:[module_num:9|svn_version:'Unknown'|variable_revision_number:1|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+    Select the input objects:IdentifyPrimaryObjects
+    Name the output image:Obj_Image
+    Select the color format:Color
+    Select the colormap:Default
 
 SaveImages:[module_num:10|svn_version:'Unknown'|variable_revision_number:15|show_window:True|notes:['']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the type of image to save:Image

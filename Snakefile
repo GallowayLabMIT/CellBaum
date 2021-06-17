@@ -7,7 +7,7 @@ configfile: "cellbaum_config.yml"
 from pathlib import Path
 import os
 #find required apps
-cp_app, fiji_app, java_app = val_env(config["base_dir"])
+cp_app, fiji_app, java_app = val_env(Path(config["cp_dir"]), Path(config["fiji_dir"]))
 #generate list of wells
 WELL = []
 for check in Path(config["data_dir"]).iterdir():
@@ -57,17 +57,16 @@ rule find_objects:
 	log:
 		Path(config["log_loc"]) / "{well}find_objects_log.txt"
 	output:
-		object_dir = directory(Path(config["output_dir"]) / '{well}cell_data')
+		object_dir = directory(Path(config["output_dir"]) / '{well}cell_data'),
+        	out_csv = Path(config["output_dir"]) / '{well}cell_data' / 'cell_locationsIdentifyPrimaryObjects.csv'
 	shell:
 		"{cp_app} -c -r -p {params.pipeline:q} --output-directory {output.object_dir:q} --image-directory {input.image_dir:q} &> {log}"
 
 rule btrack:
 	input:
-		main_dir = Path(config["output_dir"]) / '{well}cell_data',
-		output_dir = Path(config["output_dir"]) / "btrack_results"
+		cp_csv = Path(config["output_dir"]) / '{well}cell_data' / 'cell_locationsIdentifyPrimaryObjects.csv'
 	params:
 		cell_configs = Path(config["cell_config"]),
-		w = "{well}",
 		update = config["Update_method"],
 		search = config["Max_search_radius"],
 		vol = tuple(tuple(x) for x in config["Volume"]),
@@ -77,13 +76,13 @@ rule btrack:
 	output:
 		final_data = Path(config["output_dir"]) / "btrack_results"/"{well}tracks.h5"
 	run:
-		btracking(input.main_dir, params.cell_configs, input.output_dir, params.w, 
+		btracking(input.cp_csv, params.cell_configs, output.final_data, 
 			params.update, params.search, params.vol, params.step)
 
 
 rule h5_add:
 	input: 
-		main_dir = Path(config["output_dir"]),
+		cp_csv = Path(config["output_dir"]),
 		initial_data = Path(config["output_dir"]) / "btrack_results"/"{well}tracks.h5"
 	params:
 		w = "{well}",
@@ -91,4 +90,4 @@ rule h5_add:
 	output:
 		final_data = Path(config["output_dir"]) / "btrack_results"/"{well}tracks_cp.h5"
 	run:
-		add_to_h5(input.main_dir, w, add_on)
+		add_to_h5(input.cp_csv, params.w, params.add_on)
