@@ -8,7 +8,9 @@ Created on Thu Mar  4 23:48:30 2021
 import subprocess
 import sys
 import os
+import sys
 from pathlib import Path
+import contextlib
 
 """
 Uses NIST to stitch together sets of images. Requires the Fiji application to 
@@ -37,150 +39,213 @@ def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, te
     other_dir = Path(other_dir)
     well = os.path.basename(os.path.normpath(template_dir))
     old_dir = os.getcwd()
-    # for each time point folder in the given directory....
-    dir_path = Path(template_dir)
-    for image_set in dir_path.iterdir():
-        if image_set.is_dir():
-            #create the regular expression for each image in that folder
-            t = os.path.basename(os.path.normpath(image_set))
-            start_file = name_keys[template]
-            start_file = start_file.replace('time', t)
-            start_file = start_file.replace('well', well)
-            #name the output file
-            outfile = t+'_'+prefix[template]
-            #switch to the java directory
-            os.chdir(fiji_dir)
-            #create arguments, accounting for spaces in the folder name
-            if " " in str(image_set):
-                args_primary = [
-                    "--gridWidth", str(grid_width),
-                    "--gridHeight", str(grid_height),
-                    "--startTile", '1',
-                    "--imageDir", "'"+str(image_set)+"'",
-                    "--filenamePattern", start_file,
-                    "--filenamePatternType", order,
-                    "--gridOrigin", "UL",
-                    "--assembleFromMetadata", 'False',
-                    "--assembleNoOverlap", 'False',
-                    "--globalPositionsFile", '[]',
-                    "--numberingPattern", scope_path,
-                    "--startRow", '0',
-                    "--startCol", '0',
-                    "--extentWidth", '5',
-                    "--extentHeight", '5',
-                    "--timeSlices", z_list,
-                    "--isTimeSlicesEnabled", 'True',
-                    "--outputPath", str(output),
-                    "--displayStitching", 'False',
-                    "--outputFullImage", 'True',
-                    "--outputMeta", 'True',
-                    "--outputImgPyramid", 'False',
-                    "--blendingMode", "OVERLAY",
-                    "--blendingAlpha", "NaN",
-                    "--outFilePrefix", outfile,
-                    "--programType", "AUTO",
-                    "--numCPUThreads", "8",
-                    "--loadFFTWPlan", 'True',
-                    "--saveFFTWPlan", 'True',
-                    '--fftwPlanType', "MEASURE",
-                    '--fftwLibraryName', "libfftw3",
-                    '--fftwLibraryFilename', "libfftw3.dll",
-                    '--planPath', "lib/fftw/fftPlans",
-                    '--fftwLibraryPath', "lib/fftw",
-                    '--stageRepeatability', '0',
-                    '--horizontalOverlap', "NaN",
-                    '--verticalOverlap', "NaN",
-                    '--numFFTPeaks', '0',
-                    '--overlapUncertainty', "NaN",
-                    '--isUseDoublePrecision', 'False',
-                    '--isUseBioFormats', 'False',
-                    '--isSuppressModelWarningDialog', 'False',
-                    '--isEnableCudaExceptions', 'False',
-                    '--translationRefinementMethod', "SINGLE_HILL_CLIMB",
-                    '--numTranslationRefinementStartPoints', '16',
-                    '--headless', 'True',
-                    '--logLevel', "MANDATORY",
-                    '--debugLevel', "NONE"
-                    ]
-            else:
-                args_primary = [
-                    "--gridWidth", '5',
-                    "--gridHeight", '5',
-                    "--startTile", '1',
-                    "--imageDir", str(image_set),
-                    "--filenamePattern", start_file,
-                    "--filenamePatternType", order,
-                    "--gridOrigin", "UL",
-                    "--assembleFromMetadata", 'False',
-                    "--assembleNoOverlap", 'False',
-                    "--globalPositionsFile", '[]',
-                    "--numberingPattern", scope_path,
-                    "--startRow", '0',
-                    "--startCol", '0',
-                    "--extentWidth", '5',
-                    "--extentHeight", '5',
-                    "--timeSlices", z_list,
-                    "--isTimeSlicesEnabled", 'True',
-                    "--outputPath", str(output),
-                    "--displayStitching", 'False',
-                    "--outputFullImage", 'True',
-                    "--outputMeta", 'True',
-                    "--outputImgPyramid", 'False',
-                    "--blendingMode", "OVERLAY",
-                    "--blendingAlpha", "NaN",
-                    "--outFilePrefix", outfile,
-                    "--programType", "AUTO",
-                    "--numCPUThreads", "8",
-                    "--loadFFTWPlan", 'True',
-                    "--saveFFTWPlan", 'True',
-                    '--fftwPlanType', "MEASURE",
-                    '--fftwLibraryName', str(Path("/libfftw3")),
-                    '--fftwLibraryFilename', str(Path("/libfftw3.dll")),
-                    '--planPath', str(Path("/lib/fftw/fftPlans")),
-                    '--fftwLibraryPath', str(Path("/lib/fftw")),
-                    '--stageRepeatability', '0',
-                    '--horizontalOverlap', "NaN",
-                    '--verticalOverlap', "NaN",
-                    '--numFFTPeaks', '0',
-                    '--overlapUncertainty', "NaN",
-                    '--isUseDoublePrecision', 'False',
-                    '--isUseBioFormats', 'False',
-                    '--isSuppressModelWarningDialog', 'False',
-                    '--isEnableCudaExceptions', 'False',
-                    '--translationRefinementMethod', "SINGLE_HILL_CLIMB",
-                    '--numTranslationRefinementStartPoints', '16',
-                    '--headless', 'True',
-                    '--logLevel', "MANDATORY",
-                    '--debugLevel', "NONE"
-                    ]
-            jar_paths = ["plugins/MIST_.jar", "jars/*"]
-            if sys.platform.startswith('win32'):
-                separator = ';'
-            else:
-                separator = ':'
-            classpath = separator.join(jar_paths)
-            final_args = [java_dir, '-cp', 
-                                classpath, 'gov.nist.isg.mist.MISTMain']+ args_primary
-            #run NIST with arguments
-            if log_filename is None:
-                run_result = subprocess.run(final_args)
-            else:
-                with open(log_filename, 'w') as log:
-                    run_result = subprocess.run(final_args, stdout=log, stderr=log)
-            #for each channel other than the template...
-            for channel in range(len(prefix)):
-                if (channel) != template:
-                    #set the name
-                    channel_set =  name_keys[channel]
-                    channel_set = channel_set.replace('time', t)
-                    channel_set = channel_set.replace('well', well)
-                    #create arguments assembling from the template channel's metadata
-                    if " " in str(other_dir):
-                        args_secondary = [
-                                "--gridWidth", '5',
-                                "--gridHeight", '5',
+
+    # Setup Java args properly
+    jar_paths = ["plugins/MIST_.jar", "jars/*"]
+    if sys.platform.startswith('win32'):
+        separator = ';'
+    else:
+        separator = ':'
+    classpath = separator.join(jar_paths)
+    java_args = [java_dir, '-cp', classpath, 'gov.nist.isg.mist.MISTMain']
+
+    if log_filename is None:
+        @contextmanager
+        def dummy():
+            yield True
+
+        logfile = dummy()
+        extra_args = {}
+    else:
+        logfile = open(log_filename, 'w')
+        extra_args = {'stdout':logfile, 'stderr':logfile}
+
+    with logfile:
+        # for each time point folder in the given directory....
+        dir_path = Path(template_dir)
+        for image_set in dir_path.iterdir():
+            if image_set.is_dir():
+                #create the regular expression for each image in that folder
+                t = os.path.basename(os.path.normpath(image_set))
+                start_file = name_keys[template]
+                start_file = start_file.replace('time', t)
+                start_file = start_file.replace('well', well)
+                #name the output file
+                outfile = t+'_'+prefix[template]
+                #switch to the java directory
+                os.chdir(fiji_dir)
+                #create arguments, accounting for spaces in the folder name
+                if " " in str(image_set):
+                    args_primary = [
+                        "--gridWidth", str(grid_width),
+                        "--gridHeight", str(grid_height),
+                        "--startTile", '1',
+                        "--imageDir", "'"+str(image_set)+"'",
+                        "--filenamePattern", start_file,
+                        "--filenamePatternType", order,
+                        "--gridOrigin", "UL",
+                        "--assembleFromMetadata", 'False',
+                        "--assembleNoOverlap", 'False',
+                        "--globalPositionsFile", '[]',
+                        "--numberingPattern", scope_path,
+                        "--startRow", '0',
+                        "--startCol", '0',
+                        "--extentWidth", str(grid_width),
+                        "--extentHeight", str(grid_height),
+                        "--timeSlices", z_list,
+                        "--isTimeSlicesEnabled", 'True',
+                        "--outputPath", str(output),
+                        "--displayStitching", 'False',
+                        "--outputFullImage", 'True',
+                        "--outputMeta", 'True',
+                        "--outputImgPyramid", 'False',
+                        "--blendingMode", "OVERLAY",
+                        "--blendingAlpha", "NaN",
+                        "--outFilePrefix", outfile,
+                        "--programType", "AUTO",
+                        "--numCPUThreads", "8",
+                        "--loadFFTWPlan", 'True',
+                        "--saveFFTWPlan", 'True',
+                        '--fftwPlanType', "MEASURE",
+                        '--fftwLibraryName', "libfftw3",
+                        '--fftwLibraryFilename', "libfftw3.dll",
+                        '--planPath', "lib/fftw/fftPlans",
+                        '--fftwLibraryPath', "lib/fftw",
+                        '--stageRepeatability', '0',
+                        '--horizontalOverlap', "NaN",
+                        '--verticalOverlap', "NaN",
+                        '--numFFTPeaks', '0',
+                        '--overlapUncertainty', "NaN",
+                        '--isUseDoublePrecision', 'False',
+                        '--isUseBioFormats', 'False',
+                        '--isSuppressModelWarningDialog', 'False',
+                        '--isEnableCudaExceptions', 'False',
+                        '--translationRefinementMethod', "SINGLE_HILL_CLIMB",
+                        '--numTranslationRefinementStartPoints', '16',
+                        '--headless', 'True',
+                        '--logLevel', "MANDATORY",
+                        '--debugLevel', "NONE"
+                        ]
+                else:
+                    args_primary = [
+                        "--gridWidth", str(grid_width),
+                        "--gridHeight", str(grid_height),
+                        "--startTile", '1',
+                        "--imageDir", str(image_set),
+                        "--filenamePattern", start_file,
+                        "--filenamePatternType", order,
+                        "--gridOrigin", "UL",
+                        "--assembleFromMetadata", 'False',
+                        "--assembleNoOverlap", 'False',
+                        "--globalPositionsFile", '[]',
+                        "--numberingPattern", scope_path,
+                        "--startRow", '0',
+                        "--startCol", '0',
+                        "--extentWidth", str(grid_width),
+                        "--extentHeight", str(grid_height),
+                        "--timeSlices", z_list,
+                        "--isTimeSlicesEnabled", 'True',
+                        "--outputPath", str(output),
+                        "--displayStitching", 'False',
+                        "--outputFullImage", 'True',
+                        "--outputMeta", 'True',
+                        "--outputImgPyramid", 'False',
+                        "--blendingMode", "OVERLAY",
+                        "--blendingAlpha", "NaN",
+                        "--outFilePrefix", outfile,
+                        "--programType", "AUTO",
+                        "--numCPUThreads", "8",
+                        "--loadFFTWPlan", 'True',
+                        "--saveFFTWPlan", 'True',
+                        '--fftwPlanType', "MEASURE",
+                        '--fftwLibraryName', str(Path("/libfftw3")),
+                        '--fftwLibraryFilename', str(Path("/libfftw3.dll")),
+                        '--planPath', str(Path("/lib/fftw/fftPlans")),
+                        '--fftwLibraryPath', str(Path("/lib/fftw")),
+                        '--stageRepeatability', '0',
+                        '--horizontalOverlap', "NaN",
+                        '--verticalOverlap', "NaN",
+                        '--numFFTPeaks', '0',
+                        '--overlapUncertainty', "NaN",
+                        '--isUseDoublePrecision', 'False',
+                        '--isUseBioFormats', 'False',
+                        '--isSuppressModelWarningDialog', 'False',
+                        '--isEnableCudaExceptions', 'False',
+                        '--translationRefinementMethod', "SINGLE_HILL_CLIMB",
+                        '--numTranslationRefinementStartPoints', '16',
+                        '--headless', 'True',
+                        '--logLevel', "MANDATORY",
+                        '--debugLevel', "NONE"
+                        ]
+                final_args = java_args + args_primary
+                #run NIST with arguments
+                run_result = subprocess.run(final_args, **extra_args)
+
+                #for each channel other than the template...
+                for channel in range(len(prefix)):
+                    if (channel) != template:
+                        #set the name
+                        channel_set =  name_keys[channel]
+                        channel_set = channel_set.replace('time', t)
+                        channel_set = channel_set.replace('well', well)
+                        #create arguments assembling from the template channel's metadata
+                        if " " in str(other_dir):
+                            args_secondary = [
+                                    "--gridWidth", str(grid_width),
+                                    "--gridHeight", str(grid_height),
+                                    "--startTile", '1',
+                                    "--imageDir", "'"+str(other_dir/t)+"'",
+                                    "--filenamePattern", channel_set,
+                                    "--filenamePatternType", order,
+                                    "--gridOrigin", "UL",
+                                    "--assembleFromMetadata", 'True',
+                                    "--assembleNoOverlap", 'False',
+                                    "--globalPositionsFile", str(output/(outfile+ 'global-positions-{t}.txt')),
+                                    "--numberingPattern", scope_path,
+                                    "--startRow", '0',
+                                    "--startCol", '0',
+                                    "--extentWidth", str(grid_width),
+                                    "--extentHeight", str(grid_height),
+                                    "--timeSlices", z_list,
+                                    "--isTimeSlicesEnabled", 'True',
+                                    "--outputPath", str(output),
+                                    "--displayStitching", 'False',
+                                    "--outputFullImage", 'True',
+                                    "--outputMeta", 'True',
+                                    "--outputImgPyramid", 'False',
+                                    "--blendingMode", "OVERLAY",
+                                    "--blendingAlpha", "NaN",
+                                    "--outFilePrefix", t+ '_'+prefix[channel],
+                                    "--programType", "AUTO",
+                                    "--numCPUThreads", "8",
+                                    "--loadFFTWPlan", 'True',
+                                    "--saveFFTWPlan", 'True',
+                                    '--fftwPlanType', "MEASURE",
+                                    '--fftwLibraryName', str(Path("libfftw3")),
+                                    '--fftwLibraryFilename', str(Path("libfftw3.dll")),
+                                    '--planPath', str(Path("lib/fftw/fftPlans")),
+                                    '--fftwLibraryPath', str(Path("lib/fftw")),
+                                    '--stageRepeatability', '0',
+                                    '--horizontalOverlap', "NaN",
+                                    '--verticalOverlap', "NaN",
+                                    '--numFFTPeaks', '0',
+                                    '--overlapUncertainty', "NaN",
+                                    '--isUseDoublePrecision', 'False',
+                                    '--isUseBioFormats', 'False',
+                                    '--isSuppressModelWarningDialog', 'False',
+                                    '--isEnableCudaExceptions', 'False',
+                                    '--translationRefinementMethod', "SINGLE_HILL_CLIMB",
+                                    '--numTranslationRefinementStartPoints', '16',
+                                    '--headless', 'True',
+                                    '--logLevel', "MANDATORY",
+                                    '--debugLevel', "NONE"
+                                    ]
+                        else:
+                            args_secondary = [
+                                "--gridWidth", str(grid_width),
+                                "--gridHeight", str(grid_height),
                                 "--startTile", '1',
-                                "--imageDir", "'"+str(other_dir/t)+"'",
+                                "--imageDir", str(other_dir/t),
                                 "--filenamePattern", channel_set,
                                 "--filenamePatternType", order,
                                 "--gridOrigin", "UL",
@@ -190,8 +255,8 @@ def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, te
                                 "--numberingPattern", scope_path,
                                 "--startRow", '0',
                                 "--startCol", '0',
-                                "--extentWidth", '5',
-                                "--extentHeight", '5',
+                                "--extentWidth", str(grid_width),
+                                "--extentHeight", str(grid_height),
                                 "--timeSlices", z_list,
                                 "--isTimeSlicesEnabled", 'True',
                                 "--outputPath", str(output),
@@ -226,67 +291,11 @@ def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, te
                                 '--logLevel', "MANDATORY",
                                 '--debugLevel', "NONE"
                                 ]
-                    else:
-                        args_secondary = [
-                            "--gridWidth", '5',
-                            "--gridHeight", '5',
-                            "--startTile", '1',
-                            "--imageDir", str(other_dir/t),
-                            "--filenamePattern", channel_set,
-                            "--filenamePatternType", order,
-                            "--gridOrigin", "UL",
-                            "--assembleFromMetadata", 'True',
-                            "--assembleNoOverlap", 'False',
-                            "--globalPositionsFile", str(output/(outfile+ 'global-positions-{t}.txt')),
-                            "--numberingPattern", scope_path,
-                            "--startRow", '0',
-                            "--startCol", '0',
-                            "--extentWidth", '5',
-                            "--extentHeight", '5',
-                            "--timeSlices", z_list,
-                            "--isTimeSlicesEnabled", 'True',
-                            "--outputPath", str(output),
-                            "--displayStitching", 'False',
-                            "--outputFullImage", 'True',
-                            "--outputMeta", 'True',
-                            "--outputImgPyramid", 'False',
-                            "--blendingMode", "OVERLAY",
-                            "--blendingAlpha", "NaN",
-                            "--outFilePrefix", t+ '_'+prefix[channel],
-                            "--programType", "AUTO",
-                            "--numCPUThreads", "8",
-                            "--loadFFTWPlan", 'True',
-                            "--saveFFTWPlan", 'True',
-                            '--fftwPlanType', "MEASURE",
-                            '--fftwLibraryName', str(Path("libfftw3")),
-                            '--fftwLibraryFilename', str(Path("libfftw3.dll")),
-                            '--planPath', str(Path("lib/fftw/fftPlans")),
-                            '--fftwLibraryPath', str(Path("lib/fftw")),
-                            '--stageRepeatability', '0',
-                            '--horizontalOverlap', "NaN",
-                            '--verticalOverlap', "NaN",
-                            '--numFFTPeaks', '0',
-                            '--overlapUncertainty', "NaN",
-                            '--isUseDoublePrecision', 'False',
-                            '--isUseBioFormats', 'False',
-                            '--isSuppressModelWarningDialog', 'False',
-                            '--isEnableCudaExceptions', 'False',
-                            '--translationRefinementMethod', "SINGLE_HILL_CLIMB",
-                            '--numTranslationRefinementStartPoints', '16',
-                            '--headless', 'True',
-                            '--logLevel', "MANDATORY",
-                            '--debugLevel', "NONE"
-                            ]
-                    final_args = [java_dir, '-cp', 
-                                str(Path("plugins/MIST_.jar:jars/*")), 'gov.nist.isg.mist.MISTMain']+ args_secondary
-                    #run NIST with new arguments
-                    if log_filename is None:
-                        run_result = subprocess.run(final_args)
-                    else:
-                        with open(log_filename, 'w') as log:
-                            run_result = subprocess.run(final_args, stdout=log, stderr=log)
-    os.chdir(old_dir)
-    return(run_result.returncode)
+                        final_args = java_args + args_secondary
+                        #run NIST with new arguments
+                        run_result = subprocess.run(final_args, **extra_args)
+        os.chdir(old_dir)
+        return(run_result.returncode)
 
 """
 fiji_loc = Path('/Applications/Fiji.app')
