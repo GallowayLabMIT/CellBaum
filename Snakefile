@@ -29,22 +29,26 @@ rule process_image:
 	output:
 		image_dir = directory(Path((config["data_dir"] + "_corr"+"/{well}")))
 	shell:
-		"{cp_app} -c -r -p {params.pipeline:q} --output-directory {output.image_dir:q} --image-directory {input.image_dir:q} &> {log}"
+		"{cp_app} -c -r -p {params.pipeline:q} --output-directory={output.image_dir:q} --image-directory={input.image_dir:q} &> {log}"
  
 rule stitching:
 	input:
-		main_dir = Path(config["data_dir"] + "_corr" + "/{well}"),
+		main_dir = Path(config["data_dir"] + "/{well}"),
 		sec_dir = Path(config["data_dir"]) / "{well}"
 	params:
 		name_keys = lambda wildcards : config["Name_keys"],
 		prefix = config["Prefix"],
-		template = config["Template"]
+		template = config["Template"],
+		grid_width = config["stitching"]["grid_width"],
+		grid_height = config["stitching"]["grid_height"]
 	log:
 		Path(config["log_loc"]) / "{well}stitching_log.txt"
 	output:
 		stitch_dir = directory(Path(config["output_dir"]) / "{well}py_test")
 	run:
-		stitching(fiji_app, java_app, input.main_dir, input.sec_dir, params.name_keys, params.prefix, params.template, output.stitch_dir, log[0])
+		stitching(fiji_app, java_app, input.main_dir, input.sec_dir, params.name_keys,
+		 		  params.prefix, params.template, params.grid_width, params.grid_height, 
+				  output.stitch_dir, log[0])
 
 with open(Path(config["pipe_loc"])/"nuclei_masking.cppipe.template") as infile, open(Path(config["pipe_loc"])/"nuclei_masking.cppipe", "w") as outfile:
 	outfile.write(infile.read().replace("!MINSIZE!", config['minsize']).replace("!MAXSIZE!", config['maxsize']))

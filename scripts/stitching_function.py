@@ -30,7 +30,7 @@ order: order of the positions in the {p} of name_keys (default = SEQUENTIAL)
 scope_path: the microscopes path (defalut = HORIZONTALCONTINUOUS)
 z_list: number of z levels
 """
-def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, template,
+def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, template, grid_width, grid_height,
               output, log_filename = None, order = "SEQUENTIAL", 
               scope_path = "HORIZONTALCONTINUOUS", z_list = "1-3"):
     output = Path(output)
@@ -53,8 +53,8 @@ def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, te
             #create arguments, accounting for spaces in the folder name
             if " " in str(image_set):
                 args_primary = [
-                    "--gridWidth", '5',
-                    "--gridHeight", '5',
+                    "--gridWidth", str(grid_width),
+                    "--gridHeight", str(grid_height),
                     "--startTile", '1',
                     "--imageDir", "'"+str(image_set)+"'",
                     "--filenamePattern", start_file,
