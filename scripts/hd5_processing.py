@@ -1,11 +1,8 @@
-from numpy.core.fromnumeric import nonzero
 import pandas as pd
 import numpy as np
 import h5py
 import shutil
 from pathlib import Path
-
-from pandas._libs.missing import NA
 
 def add_to_h5(dir, well, to_save):
     cp_loc = Path(dir) / (well+"cell_data") / "cell_locationsIdentifyPrimaryObjects.csv"
@@ -51,7 +48,6 @@ def add_to_h5(dir, well, to_save):
                 #ordered_cp[n,:] = np.array(cp_data.iloc[int(list(index_final)[0])])
                 index_order.append(list(cp_data.iloc[int(list(index_final)[0])]))
             else:
-                print('ah')
                 index_order.append([np.nan]*len(cp_data.columns))
         ordered_cp = pd.DataFrame(index_order, columns = cp_data.columns)
 

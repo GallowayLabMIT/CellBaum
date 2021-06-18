@@ -46,8 +46,14 @@ rule stitching:
 	run:
 		stitching(fiji_app, java_app, input.main_dir, input.sec_dir, params.name_keys, params.prefix, params.template, output.stitch_dir, log[0])
 
-with open(Path(config["pipe_loc"])/"nuclei_masking.cppipe.template") as infile, open(Path(config["pipe_loc"])/"nuclei_masking.cppipe", "w") as outfile:
-	outfile.write(infile.read().replace("!MINSIZE!", config['minsize']).replace("!MAXSIZE!", config['maxsize']))
+rule cp_process:
+	input:
+		temp = Path(config["pipe_loc"])/"nuclei_masking.cppipe.template"
+	output:
+		final = Path(config["pipe_loc"])/"nuclei_masking.cppipe"
+	run:
+		with open(Path(config["pipe_loc"])/"nuclei_masking.cppipe.template") as infile, open(Path(config["pipe_loc"])/"nuclei_masking.cppipe", "w") as outfile:
+			outfile.write(infile.read().replace("!MINSIZE!", config['minsize']).replace("!MAXSIZE!", config['maxsize']))
 
 rule find_objects:
 	input:
