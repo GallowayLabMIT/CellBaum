@@ -3,12 +3,12 @@ import numpy as np
 import h5py
 import shutil
 from pathlib import Path
+import os
 
-def add_to_h5(dir, well, to_save):
-    cp_loc = Path(dir) / (well+"cell_data") / "cell_locationsIdentifyPrimaryObjects.csv"
-    cp_data = pd.read_csv(cp_loc)
-    v_track = Path(dir) / 'btrack_results' / (well+'tracks.h5')
-    cp_track = Path(dir) / 'btrack_results' / (well+'tracks_cp.h5')
+def add_to_h5(cp_loc, initial_h5, to_save):
+    cp_data = pd.read_csv(Path(cp_loc))
+    v_track = Path(initial_h5)
+    cp_track = Path(os.path.dirname(initial_h5))/'tracks_cp.h5'
     shutil.copy(v_track, cp_track)
     with h5py.File(cp_track, 'a') as cp_track:
         """
@@ -80,8 +80,8 @@ def add_to_h5(dir, well, to_save):
 
 
 """
-output = Path("/Users/ConradOakes/CellBaum/output")
-w = 'XY01'
+output = Path("/Users/ConradOakes/CellBaum/output/cell_data/XY01/cell_locationsIdentifyPrimaryObjects.csv")
+h5 = Path("/Users/ConradOakes/CellBaum/output/btrack_results/XY01/old_tracks.h5")
 save = 'all'
-add_to_h5(output, w, save)
+add_to_h5(output, h5, save)
 """

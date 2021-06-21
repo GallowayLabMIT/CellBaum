@@ -33,8 +33,9 @@ scope_path: the microscopes path (defalut = HORIZONTALCONTINUOUS)
 z_list: number of z levels
 """
 def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, template, grid_width, grid_height,
-              output, log_filename = None, order = "SEQUENTIAL", 
-              scope_path = "HORIZONTALCONTINUOUS", z_list = "1-3"):
+              output, z_min, z_max, log_filename = None, order = "SEQUENTIAL", 
+              scope_path = "HORIZONTALCONTINUOUS"):
+    z_list = f"{z_min}-{z_max}"
     output = Path(output)
     other_dir = Path(other_dir)
     well = os.path.basename(os.path.normpath(template_dir))
@@ -158,10 +159,10 @@ def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, te
                         "--loadFFTWPlan", 'True',
                         "--saveFFTWPlan", 'True',
                         '--fftwPlanType', "MEASURE",
-                        '--fftwLibraryName', str(Path("/libfftw3")),
-                        '--fftwLibraryFilename', str(Path("/libfftw3.dll")),
-                        '--planPath', str(Path("/lib/fftw/fftPlans")),
-                        '--fftwLibraryPath', str(Path("/lib/fftw")),
+                        '--fftwLibraryName', "libfftw3",
+                        '--fftwLibraryFilename', "libfftw3.dll",
+                        '--planPath', "lib/fftw/fftPlans",
+                        '--fftwLibraryPath', "lib/fftw",
                         '--stageRepeatability', '0',
                         '--horizontalOverlap', "NaN",
                         '--verticalOverlap', "NaN",
@@ -221,10 +222,10 @@ def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, te
                                     "--loadFFTWPlan", 'True',
                                     "--saveFFTWPlan", 'True',
                                     '--fftwPlanType', "MEASURE",
-                                    '--fftwLibraryName', str(Path("libfftw3")),
-                                    '--fftwLibraryFilename', str(Path("libfftw3.dll")),
-                                    '--planPath', str(Path("lib/fftw/fftPlans")),
-                                    '--fftwLibraryPath', str(Path("lib/fftw")),
+                                    '--fftwLibraryName', "libfftw3",
+                                    '--fftwLibraryFilename', "libfftw3.dll",
+                                    '--planPath', "lib/fftw/fftPlans",
+                                    '--fftwLibraryPath', "lib/fftw",
                                     '--stageRepeatability', '0',
                                     '--horizontalOverlap', "NaN",
                                     '--verticalOverlap', "NaN",
@@ -271,11 +272,12 @@ def stitching(fiji_dir, java_dir, template_dir, other_dir, name_keys, prefix, te
                                 "--numCPUThreads", "8",
                                 "--loadFFTWPlan", 'True',
                                 "--saveFFTWPlan", 'True',
-                                '--fftwPlanType', "MEASURE",
-                                '--fftwLibraryName', str(Path("libfftw3")),
-                                '--fftwLibraryFilename', str(Path("libfftw3.dll")),
-                                '--planPath', str(Path("lib/fftw/fftPlans")),
-                                '--fftwLibraryPath', str(Path("lib/fftw")),
+                                '--fftwPlanType', "MEASURE",            
+                                '--fftwLibraryName', "libfftw3",
+                                '--fftwLibraryFilename', "libfftw3.dll",
+                                '--planPath', "lib/fftw/fftPlans",
+                                '--fftwLibraryPath', "lib/fftw",
+                                '--stageRepeatability', '0',
                                 '--stageRepeatability', '0',
                                 '--horizontalOverlap', "NaN",
                                 '--verticalOverlap', "NaN",
