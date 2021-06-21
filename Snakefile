@@ -29,7 +29,7 @@ rule process_image:
 	output:
 		image_dir = directory(Path((config["data_dir"] + "_corr"+"/{well}")))
 	shell:
-		"{cp_app} -c -r -p {params.pipeline:q} --output-directory={output.image_dir:q} --image-directory={input.image_dir:q} &> {log}"
+		"{cp_app:q} -c -r -p {params.pipeline:q} --output-directory={output.image_dir:q} --image-directory={input.image_dir:q} 1> {log:q} 2>&1"
  
 rule stitching:
 	input:
@@ -70,7 +70,7 @@ rule find_objects:
 		object_dir = directory(Path(config["output_dir"]) / '{well}cell_data'),
         	out_csv = Path(config["output_dir"]) / '{well}cell_data' / 'cell_locationsIdentifyPrimaryObjects.csv'
 	shell:
-		"{cp_app} -c -r -p {params.pipeline:q} --output-directory {output.object_dir:q} --image-directory {input.image_dir:q} &> {log}"
+		"{cp_app:q} -c -r -p {params.pipeline:q} --output-directory {output.object_dir:q} --image-directory {input.image_dir:q} 1> {log} 2>&1"
 
 rule btrack:
 	input:
