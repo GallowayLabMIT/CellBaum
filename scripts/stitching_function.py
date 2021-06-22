@@ -37,6 +37,7 @@ def stitching(fiji_dir, java_dir, image_dir, name_keys, prefix, template, grid_w
               scope_path = "HORIZONTALCONTINUOUS"):
     z_list = f"{z_min}-{z_max}"
     output = Path(output)
+    image_dir = Path(image_dir)
     well = os.path.basename(os.path.normpath(image_dir))
     old_dir = os.getcwd()
 
@@ -194,7 +195,7 @@ def stitching(fiji_dir, java_dir, image_dir, name_keys, prefix, template, grid_w
                                     "--gridWidth", str(grid_width),
                                     "--gridHeight", str(grid_height),
                                     "--startTile", '1',
-                                    "--imageDir", "'"+str(other_dir/t)+"'",
+                                    "--imageDir", "'"+str(image_dir/t)+"'",
                                     "--filenamePattern", channel_set,
                                     "--filenamePatternType", order,
                                     "--gridOrigin", "UL",
