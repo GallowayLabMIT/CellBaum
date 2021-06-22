@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import math
 import matplotlib.pyplot as plt
 import seaborn
 import h5py
@@ -26,6 +27,34 @@ def find_velocity(cell_data, t_scale=1, t_min = 2):
       v_temp += [d/(t*t_scale)] 
     v = sum(v_temp)/len(v_temp)
     return v
+
+
+"""
+Calculates average direction of a cell along its track.
+
+cell_data: the track's txyz data
+t_scale: the units of time being used
+t_min: minimum points in time that should be in the track's data to calculate velocity
+"""
+def find_direction(cell_data, t_scale=1, t_min = 2):
+  d_temp = []
+  first = True
+  if cell_data.shape[0] > 2 and cell_data.shape[0] > t_min: 
+    for id in range(cell_data.shape[0]-1):
+      pointA = cell_data[id,]
+      pointB = cell_data[id+1,]
+      #t = abs((pointB[0])-(pointA[0]))
+      x = ((pointB[1])-(pointA[1]))
+      y = ((pointB[2])-(pointA[2]))
+      theta = math.atan(y/x)
+      if first:
+        d_temp += [theta]
+        first = False
+      else:
+        d_temp += [theta - d_temp[-1]]
+    d = sum(d_temp)/len(d_temp)
+    return d
+
 
 """
 Calculates the velocities of every cell track in the provided well
@@ -54,6 +83,7 @@ def well_to_vel(data, well, t_scaling = 1, min_t = 2):
       gen = cell[5]
   print(well, gen, counter, len(tracks['LBEPR']))
   vel = []
+  dir = []
   # for each track, gets all relevant object points
   for row in map:
     cell_ids = convert[row[0]:row[1],]
@@ -72,14 +102,25 @@ def well_to_vel(data, well, t_scaling = 1, min_t = 2):
     cell_coords = np.sort(cell_coords, axis = 0)
     # calculates average velocity of the track
     vel += [find_velocity(cell_coords, t_scale = t_scaling, t_min = min_t)]
-  return vel
+    dir += [find_direction(cell_coords, t_scale = t_scaling, t_min = min_t)]
+  return vel, dir
  
 
 well_list = ['XY01', 'XY02', 'XY03', 'XY04']
 type_list = ['None', '6F', '6FDD', '6FDDRR']
 data = {}
 dir = Path("/Users/ConradOakes/CellBaum/output/btrack_results/")
+well = 'XY01'
+data = well_to_vel(dir, well, t_scaling = 15, min_t = 5)
+graph = pd.DataFrame(data)
+graph = graph.transpose()
+graph = graph.fillna(value=np.nan)
+graph.columns = ['vel', 'dir']
+fig, axes = plt.subplots()
+violin = seaborn.violinplot(data = data)
+plt.show()
 
+"""
 for well in range(len(well_list)):
     data[type_list[well]] = well_to_vel(dir, well_list[well], t_scaling = 15, min_t = 5)
 
@@ -90,3 +131,4 @@ fig, axes = plt.subplots()
 violin = seaborn.violinplot(data = data)
 violin.set(ylabel = 'Velocity')
 plt.show()
+"""

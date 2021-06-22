@@ -21,7 +21,6 @@ def val_env(cp_dir, fiji_dir):
 
     java_ops = fiji_path.glob('java/**/bin/java*')
     for jpath in java_ops:
-        print(jpath)
         if jpath.stem == 'java' and jpath.suffix in ['', '.exe']:
             java_run = jpath
             break

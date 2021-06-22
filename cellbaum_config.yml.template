@@ -1,36 +1,43 @@
 ---
-"data_dir": /path/to/your/images
-"cp_dir": /path/to/cell_profiler
-"fiji_dir": /path/to/fiji
-"pipe_loc": /path/to/cp_file/directory
-"output_dir": /path/to/output/directory
-"log_loc": /path/to/snakemake_logs
-"cell_config": /path/to/models/cell_config.json
-"minsize": 'minimum_cell_size'
-"maxsize": 'maximum_cell_size'
-"Name_keys":
+data_dir: /path/to/your/images
+cp_dir: /path/to/cell_profiler
+fiji_dir: /path/to/fiji
+pipe_dir: /path/to/cp_file/directory
+output_dir: /path/to/output/directory
+log_dir: /path/to/snakemake_logs
+cell_config: /path/to/models/cell_config.json
+minsize: minimum_cell_size
+maxsize: maximum_cell_size
+pre_stitch_correction_needed: false OR true
+stitching:
+  grid_width: stitching_tiles_width
+  grid_height: stitching_tiles_height
+  z_min: minimum_zstack
+  z_max: max_zstack
+  
+Name_keys:
  - 2021.01.18_10X_time_well_000{pp}_Z{ttt}_CH1.tif
  - 2021.01.18_10X_time_well_000{pp}_Z{ttt}_CH3_threshold.tiff
  - 2021.01.18_10X_time_well_000{pp}_Z{ttt}_CH4.tif
  - 2021.01.18_10X_time_well_000{pp}_Z{ttt}_Overlay.tif
-"Prefix": 
- - "CH1"
- - "CH3"
- - "CH4"
- - "Overlay"
-"Template": 1
-"Update_method": EXACT or APPROXIMATE
-"Max_search_radius": Number
-"Volume": 
-  - 
+Prefix: 
+ - CH1
+ - CH3
+ - CH4
+ - Overlay
+Template: 1
+Update_method: EXACT or APPROXIMATE
+Max_search_radius: Number
+Volume: 
+  x: 
    - X_min
    - X_max
-  - 
+  y: 
    - Y_min
    - Y_max
-  - 
+  z: 
    - Z_min
    - Z_max
-"Step_size": Number
-"CP_Data_Keep" :'all' or
+Step_size: Number
+CP_Data_Keep :'all' or
  - list
