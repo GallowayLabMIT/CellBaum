@@ -32,7 +32,7 @@ rule process_image:
         image_dir = directory(Path(config["output_dir"]) /"corrected"/"{well}")
     run:
         shutil.copytree(input.image_dir, output.image_dir, dirs_exist_ok=True)
-        call_cp(cp_app, params.pipeline, output.image_dir, input.image_dir, log)
+        call_cp(cp_app, params.pipeline, output.image_dir, input.image_dir, log[0])
  
 if config["pre_stitch_correction_needed"]:
     stitching_dir = Path(config["output_dir"])/"corrected"/"{well}"
@@ -79,7 +79,7 @@ rule find_objects:
         object_dir = directory(Path(config["output_dir"]) / 'cell_data'/"{well}"),
         out_csv = Path(config["output_dir"]) / 'cell_data'/'{well}' / 'cell_locationsIdentifyPrimaryObjects.csv'
     run:
-        call_cp(cp_app, params.pipeline, output.object_dir, input.image_dir, log)
+        call_cp(cp_app, params.pipeline, output.object_dir, input.image_dir, log[0])
 
 rule btrack:
     input:
