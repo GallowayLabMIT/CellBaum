@@ -148,7 +148,7 @@ def stitching(fiji_dir, java_dir, image_dir, name_keys, prefix, template, grid_w
                                 "--gridWidth", str(grid_width),
                                 "--gridHeight", str(grid_height),
                                 "--startTile", '1',
-                                "--imageDir", java_quote((image_dir/t)),
+                                "--imageDir", java_quote(str(image_dir/t)),
                                 "--filenamePattern", channel_set,
                                 "--filenamePatternType", order,
                                 "--gridOrigin", "UL",
