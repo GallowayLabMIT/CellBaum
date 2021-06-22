@@ -78,7 +78,7 @@ rule find_objects:
         object_dir = directory(Path(config["output_dir"]) / 'cell_data'/"{well}"),
         out_csv = Path(config["output_dir"]) / 'cell_data'/'{well}' / 'cell_locationsIdentifyPrimaryObjects.csv'
     run:
-        shell("{cp_app:q} -c -r -p {params.pipeline:q} --output-directory {output.object_dir:q} --image-directory {input.image_dir:q} 1> {log} 2>&1")
+        shell("{cp_app:q} -c -r -p {params.pipeline:q} --output-directory={output.object_dir:q} --image-directory={input.image_dir:q} 1> {log} 2>&1")
 
 rule btrack:
     input:
