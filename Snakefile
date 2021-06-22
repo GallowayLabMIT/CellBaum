@@ -6,6 +6,7 @@ from scripts.hd5_processing import add_to_h5
 configfile: "cellbaum_config.yml"
 from pathlib import Path
 import os
+import shutil
 #find required apps
 cp_app, fiji_app, java_app = val_env(Path(config["cp_dir"]), Path(config["fiji_dir"]))
 #generate list of wells
@@ -28,11 +29,9 @@ rule process_image:
 		Path(config["log_dir"]) / "{well}img_processing_log.txt"
 	output:
 		image_dir = directory(Path(config["output_dir"]) /"corrected"/"{well}")
-	shell:
-		""""
-		cp -r {input.image_dir} {output.image_dir}
-		"{cp_app:q} -c -r -p {params.pipeline:q} --output-directory={output.image_dir:q} --image-directory={input.image_dir:q} 1> {log:q} 2>&1"
-		"""
+	run:
+		shutil.copytree(input.image_dir, output.image_dir, dirs_exist_ok=True)
+		shell("{cp_app:q} -c -r -p {params.pipeline:q} --output-directory={output.image_dir:q} --image-directory={input.image_dir:q} 1> {log:q} 2>&1")
  
 if config["pre_stitch_correction_needed"]:
 	stitching_dir = Path(config["output_dir"])/"corrected"/"{well}"
