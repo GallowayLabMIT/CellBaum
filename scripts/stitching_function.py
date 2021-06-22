@@ -50,7 +50,7 @@ def stitching(fiji_dir, java_dir, image_dir, name_keys, prefix, template, grid_w
     java_args = [java_dir, '-cp', classpath, 'gov.nist.isg.mist.MISTMain']
 
     if log_filename is None:
-        @contextmanager
+        @contextlib.contextmanager
         def dummy():
             yield True
 
