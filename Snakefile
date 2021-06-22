@@ -27,18 +27,21 @@ rule process_image:
 	log:
 		Path(config["log_dir"]) / "{well}img_processing_log.txt"
 	output:
-		image_dir = directory(Path(config["output_dir"]) /"og_data"/"{well}"),
-		corr_dir = directory(Path(config["output_dir"]) / "corr"/"{well}")
+		image_dir = directory(Path(config["output_dir"]) /"corrected"/"{well}")
 	shell:
 		""""
 		cp -r {input.image_dir} {output.image_dir}
 		"{cp_app:q} -c -r -p {params.pipeline:q} --output-directory={output.image_dir:q} --image-directory={input.image_dir:q} 1> {log:q} 2>&1"
 		"""
  
+if config["pre_stitch_correction_needed"]:
+	stitching_dir = Path(config["output_dir"])/"corrected"/"{well}"
+else:
+	stitching_dir = Path(config["data_dir"])/"{well}"
+
 rule stitching:
 	input:
-		main_dir = Path(config["output_dir"])/"corr"/"{well}",
-		sec_dir = Path(config["output_dir"]) /"og_data"/ "{well}"
+		main_dir = stitching_dir
 	params:
 		name_keys = lambda wildcards : config["Name_keys"],
 		prefix = config["Prefix"],
@@ -52,7 +55,7 @@ rule stitching:
 	output:
 		stitch_dir = directory(Path(config["output_dir"]) / "stitched"/"{well}")
 	run:
-		stitching(fiji_app, java_app, input.main_dir, input.sec_dir, params.name_keys,
+		stitching(fiji_app, java_app, input.main_dir, params.name_keys,
 		 		  params.prefix, params.template, params.grid_width, params.grid_height, 
 				  output.stitch_dir, params.min_z, params.max_z, log[0])
 
