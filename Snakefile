@@ -2,6 +2,7 @@
 from scripts.env_validation import val_env
 from scripts.stitching_function import stitching
 from scripts.btracker import btracking
+from scripts.call_cp import call_cp
 from scripts.hd5_processing import add_to_h5
 configfile: "cellbaum_config.yml"
 from pathlib import Path
@@ -31,7 +32,7 @@ rule process_image:
         image_dir = directory(Path(config["output_dir"]) /"corrected"/"{well}")
     run:
         shutil.copytree(input.image_dir, output.image_dir, dirs_exist_ok=True)
-        shell("{cp_app:q} -c -r -p {params.pipeline:q} --output-directory={output.image_dir:q} --image-directory={input.image_dir:q} 1> {log:q} 2>&1")
+        call_cp(cp_app, params.pipeline, output.image_dir, input.image_dir, log)
  
 if config["pre_stitch_correction_needed"]:
     stitching_dir = Path(config["output_dir"])/"corrected"/"{well}"
@@ -78,7 +79,7 @@ rule find_objects:
         object_dir = directory(Path(config["output_dir"]) / 'cell_data'/"{well}"),
         out_csv = Path(config["output_dir"]) / 'cell_data'/'{well}' / 'cell_locationsIdentifyPrimaryObjects.csv'
     run:
-        shell("{cp_app:q} -c -r -p {params.pipeline:q} --output-directory={output.object_dir:q} --image-directory={input.image_dir:q} 1> {log:q} 2>&1")
+        call_cp(cp_app, params.pipeline, output.object_dir, input.image_dir, log)
 
 rule btrack:
     input:
