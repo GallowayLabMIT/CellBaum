@@ -11,6 +11,7 @@ import os
 import sys
 from pathlib import Path
 import contextlib
+import itertools
 
 
 def java_quote(input_str):
@@ -67,6 +68,59 @@ def stitching(fiji_dir, java_dir, image_dir, name_keys, prefix, template, grid_w
         logfile = open(log_filename, 'w')
         extra_args = {'stdout':logfile, 'stderr':logfile}
 
+
+    BASE_ARGS = {
+                    "--gridWidth": "placeholder",
+                    "--gridHeight": "placeholder",
+                    "--startTile": '1',
+                    "--imageDir": "placeholder",
+                    "--filenamePattern": "placeholder",
+                    "--filenamePatternType": "placeholder",
+                    "--gridOrigin": "UL",
+                    "--assembleFromMetadata": 'False',
+                    "--assembleNoOverlap": 'False',
+                    "--globalPositionsFile": '[]',
+                    "--numberingPattern": "placeholder",
+                    "--startRow": '0',
+                    "--startCol": '0',
+                    "--extentWidth": "placeholder",
+                    "--extentHeight": "placeholder",
+                    "--timeSlices": "placeholder",
+                    "--isTimeSlicesEnabled": 'True',
+                    "--outputPath": "placeholder",
+                    "--displayStitching": 'False',
+                    "--outputFullImage": 'True',
+                    "--outputMeta": 'True',
+                    "--outputImgPyramid": 'False',
+                    "--blendingMode": "OVERLAY",
+                    "--blendingAlpha": "NaN",
+                    "--outFilePrefix": "placeholder",
+                    "--programType": "AUTO",
+                    "--numCPUThreads": "8",
+                    "--loadFFTWPlan": 'True',
+                    "--saveFFTWPlan": 'True',
+                    '--fftwPlanType': "MEASURE",
+                    '--fftwLibraryName': "libfftw3",
+                    '--fftwLibraryFilename': "libfftw3.dll",
+                    '--planPath': "lib/fftw/fftPlans",
+                    '--fftwLibraryPath': "lib/fftw",
+                    '--stageRepeatability': '0',
+                    '--horizontalOverlap': "NaN",
+                    '--verticalOverlap': "NaN",
+                    '--numFFTPeaks': '0',
+                    '--overlapUncertainty': "NaN",
+                    '--isUseDoublePrecision': 'False',
+                    '--isUseBioFormats': 'False',
+                    '--isSuppressModelWarningDialog': 'False',
+                    '--isEnableCudaExceptions': 'False',
+                    '--translationRefinementMethod': "SINGLE_HILL_CLIMB",
+                    '--numTranslationRefinementStartPoints': '16',
+                    '--headless': 'True',
+                    '--logLevel': "MANDATORY",
+                    '--debugLevel': "NONE"
+    }
+
+
     with logfile:
         # for each time point folder in the given directory....
         dir_path = Path(image_dir)
@@ -81,58 +135,23 @@ def stitching(fiji_dir, java_dir, image_dir, name_keys, prefix, template, grid_w
                 outfile = t+'_'+prefix[template]
                 #switch to the java directory
                 os.chdir(fiji_dir)
-                #create arguments, accounting for spaces in the folder name
-                args_primary = [
-                    "--gridWidth", str(grid_width),
-                    "--gridHeight", str(grid_height),
-                    "--startTile", '1',
-                    "--imageDir", java_quote(str(image_set)),
-                    "--filenamePattern", start_file,
-                    "--filenamePatternType", order,
-                    "--gridOrigin", "UL",
-                    "--assembleFromMetadata", 'False',
-                    "--assembleNoOverlap", 'False',
-                    "--globalPositionsFile", '[]',
-                    "--numberingPattern", scope_path,
-                    "--startRow", '0',
-                    "--startCol", '0',
-                    "--extentWidth", str(grid_width),
-                    "--extentHeight", str(grid_height),
-                    "--timeSlices", z_list,
-                    "--isTimeSlicesEnabled", 'True',
-                    "--outputPath", java_quote(str(output)),
-                    "--displayStitching", 'False',
-                    "--outputFullImage", 'True',
-                    "--outputMeta", 'True',
-                    "--outputImgPyramid", 'False',
-                    "--blendingMode", "OVERLAY",
-                    "--blendingAlpha", "NaN",
-                    "--outFilePrefix", outfile,
-                    "--programType", "AUTO",
-                    "--numCPUThreads", "8",
-                    "--loadFFTWPlan", 'True',
-                    "--saveFFTWPlan", 'True',
-                    '--fftwPlanType', "MEASURE",
-                    '--fftwLibraryName', "libfftw3",
-                    '--fftwLibraryFilename', "libfftw3.dll",
-                    '--planPath', "lib/fftw/fftPlans",
-                    '--fftwLibraryPath', "lib/fftw",
-                    '--stageRepeatability', '0',
-                    '--horizontalOverlap', "NaN",
-                    '--verticalOverlap', "NaN",
-                    '--numFFTPeaks', '0',
-                    '--overlapUncertainty', "NaN",
-                    '--isUseDoublePrecision', 'False',
-                    '--isUseBioFormats', 'False',
-                    '--isSuppressModelWarningDialog', 'False',
-                    '--isEnableCudaExceptions', 'False',
-                    '--translationRefinementMethod', "SINGLE_HILL_CLIMB",
-                    '--numTranslationRefinementStartPoints', '16',
-                    '--headless', 'True',
-                    '--logLevel', "MANDATORY",
-                    '--debugLevel', "NONE"
-                    ]
-                final_args = java_args + args_primary
+                args_dict = BASE_ARGS
+                args_dict["--gridWidth"] = str(grid_width)
+                args_dict["--gridHeight"] = str(grid_height)
+                args_dict["--imageDir"] =  java_quote(str(image_set))
+                args_dict["--filenamePattern"] = start_file
+                args_dict["--filenamePatternType"]= order
+                args_dict["--numberingPattern"]= scope_path
+                args_dict["--startRow"]= '0'
+                args_dict["--startCol"]= '0'
+                args_dict["--extentWidth"]= str(grid_width)
+                args_dict["--extentHeight"]= str(grid_height)
+                args_dict["--timeSlices"]= z_list
+                args_dict["--outputPath"]= str(output)
+                args_dict["--outFilePrefix"]= outfile
+                
+                primary_args = list(itertools.chain.from_iterable([('{}'.format(k), v) for k,v in args_dict.items()]))
+                final_args = java_args + primary_args
                 #run NIST with arguments
                 run_result = subprocess.run(final_args, **extra_args)
 
@@ -144,73 +163,40 @@ def stitching(fiji_dir, java_dir, image_dir, name_keys, prefix, template, grid_w
                         channel_set = channel_set.replace('time', t)
                         channel_set = channel_set.replace('well', well)
                         #create arguments assembling from the template channel's metadata
-                        args_secondary = [
-                                "--gridWidth", str(grid_width),
-                                "--gridHeight", str(grid_height),
-                                "--startTile", '1',
-                                "--imageDir", java_quote(str(image_dir/t)),
-                                "--filenamePattern", channel_set,
-                                "--filenamePatternType", order,
-                                "--gridOrigin", "UL",
-                                "--assembleFromMetadata", 'True',
-                                "--assembleNoOverlap", 'False',
-                                "--globalPositionsFile", java_quote(str(output/(outfile+ 'global-positions-{t}.txt'))),
-                                "--numberingPattern", scope_path,
-                                "--startRow", '0',
-                                "--startCol", '0',
-                                "--extentWidth", str(grid_width),
-                                "--extentHeight", str(grid_height),
-                                "--timeSlices", z_list,
-                                "--isTimeSlicesEnabled", 'True',
-                                "--outputPath", java_quote(str(output)),
-                                "--displayStitching", 'False',
-                                "--outputFullImage", 'True',
-                                "--outputMeta", 'True',
-                                "--outputImgPyramid", 'False',
-                                "--blendingMode", "OVERLAY",
-                                "--blendingAlpha", "NaN",
-                                "--outFilePrefix", t+ '_'+prefix[channel],
-                                "--programType", "AUTO",
-                                "--numCPUThreads", "8",
-                                "--loadFFTWPlan", 'True',
-                                "--saveFFTWPlan", 'True',
-                                '--fftwPlanType', "MEASURE",
-                                '--fftwLibraryName', "libfftw3",
-                                '--fftwLibraryFilename', "libfftw3.dll",
-                                '--planPath', "lib/fftw/fftPlans",
-                                '--fftwLibraryPath', "lib/fftw",
-                                '--stageRepeatability', '0',
-                                '--horizontalOverlap', "NaN",
-                                '--verticalOverlap', "NaN",
-                                '--numFFTPeaks', '0',
-                                '--overlapUncertainty', "NaN",
-                                '--isUseDoublePrecision', 'False',
-                                '--isUseBioFormats', 'False',
-                                '--isSuppressModelWarningDialog', 'False',
-                                '--isEnableCudaExceptions', 'False',
-                                '--translationRefinementMethod', "SINGLE_HILL_CLIMB",
-                                '--numTranslationRefinementStartPoints', '16',
-                                '--headless', 'True',
-                                '--logLevel', "MANDATORY",
-                                '--debugLevel', "NONE"
-                                ]
-                        final_args = java_args + args_secondary
+                        sec_dict = BASE_ARGS
+                        sec_dict["--gridWidth"] = str(grid_width)
+                        sec_dict["--gridHeight"] = str(grid_height)
+                        sec_dict["--imageDir"] =  java_quote(str(image_dir/t))
+                        sec_dict["--filenamePattern"] = channel_set
+                        sec_dict["--filenamePatternType"]= order
+                        sec_dict["--globalPositionsFile"]= java_quote(str(output/(outfile+ 'global-positions-{t}.txt')))
+                        sec_dict["--numberingPattern"]= scope_path
+                        sec_dict["--startRow"]= '0'
+                        sec_dict["--startCol"]= '0'
+                        sec_dict["--extentWidth"]= str(grid_width)
+                        sec_dict["--extentHeight"]= str(grid_height)
+                        sec_dict["--timeSlices"]= z_list
+                        sec_dict["--outputPath"]= java_quote(str(output))
+                        sec_dict["--outFilePrefix"]= t+ '_'+prefix[channel]
+                        
+                        secondary_args = list(itertools.chain.from_iterable([('{}'.format(k), v) for k,v in sec_dict.items()]))
+                        final_args2 = java_args + secondary_args
                         #run NIST with new arguments
-                        run_result = subprocess.run(final_args, **extra_args)
+                        run_result = subprocess.run(final_args2, **extra_args)
         os.chdir(old_dir)
         return(run_result.returncode)
 
 """
 fiji_loc = Path('/Applications/Fiji.app')
 java_loc = Path('/Applications/Fiji.app/java/macosx/adoptopenjdk-8.jdk/jre/Contents/Home/bin/java')
-data_dir = Path('/Users/ConradOakes/Massachusetts Institute of Technology/GallowayLab - 2021.01.17.NT_FT_2dpi_timelapse/3dpi_timelapse_corr/XY01')
-sec_dir = Path('/Users/ConradOakes/Massachusetts Institute of Technology/GallowayLab - 2021.01.17.NT_FT_2dpi_timelapse/3dpi_timelapse/XY01')
+data_dir = Path('/Users/ConradOakes/CellBaum/output/corrected/XY01')
 name_key = ["2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_CH1.tif", "2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_CH3_threshold.tiff",
              "2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_CH4.tif", "2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_Overlay.tif"]
 prefixes = ["CH1", "CH3", "CH4", "Overlay"]
 main_chan = 1
-output_dir = Path("/Users/ConradOakes/Desktop/Galloway_2021/py_test")
+output_dir = Path("/Users/ConradOakes/CellBaum/output/stitched/XY01")
+log_dir = "/Users/ConradOakes/CellBaum/snakemake_logs/XY01stitching_log.txt"
 
-stitching(fiji_dir = fiji_loc, java_dir = java_loc, main_dir = data_dir, name_keys = name_key, prefix = prefixes, template = main_chan,
-              output = output_dir)
+stitching(fiji_dir = fiji_loc, java_dir = java_loc, image_dir = data_dir, name_keys = name_key, prefix = prefixes, template = main_chan,
+              grid_width = 5, grid_height = 5, output = output_dir, z_min = 1, z_max = 3, log_filename=log_dir)
 """

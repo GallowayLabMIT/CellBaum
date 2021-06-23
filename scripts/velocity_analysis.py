@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import math
 import matplotlib.pyplot as plt
 import seaborn
 import h5py
@@ -46,7 +45,12 @@ def find_direction(cell_data, t_scale=1, t_min = 2):
       #t = abs((pointB[0])-(pointA[0]))
       x = ((pointB[1])-(pointA[1]))
       y = ((pointB[2])-(pointA[2]))
-      theta = math.atan(y/x)
+      if x == 0:
+        theta = np.pi/2
+      elif y < 0:
+        theta = np.arctan(y/x)+np.pi
+      else:
+        theta = np.arctan(y/x)
       if first:
         d_temp += [theta]
         first = False
@@ -66,7 +70,7 @@ min_t: minimum points in time that should be in the track's data to calculate ve
 """
 def well_to_vel(data, well, t_scaling = 1, min_t = 2):
   #get cell velocities
-  v_track = h5py.File(data/(well+'tracks.h5'))
+  v_track = h5py.File(data/'tracks.h5')
   #gets more convenient names for dataframes in the h5 file
   objects = v_track['objects']['obj_type_1']
   tracks = v_track['tracks']['obj_type_1']
@@ -87,18 +91,18 @@ def well_to_vel(data, well, t_scaling = 1, min_t = 2):
   # for each track, gets all relevant object points
   for row in map:
     cell_ids = convert[row[0]:row[1],]
-    obj_ids = []
-    dummy_ids = []
-    for n in cell_ids:
-      if n >= 0:
-        obj_ids += [n]
-      else:
-        dummy_ids += [-(n+1)]
+
+    obj_ids = [n for n in cell_ids if n >= 0]
+    dummy_ids = [-(n+1) for n in cell_ids if n < 0]
+
+    cell_coords = np.vstack((cells[obj_ids,], dummies[dummy_ids,]))
+    """
     cell_coords = np.empty(shape = (0,5))
     for n in obj_ids:
       cell_coords = np.vstack((cell_coords, cells[n,]))
     for n in dummy_ids:
       cell_coords = np.vstack((cell_coords, dummies[n,]))
+    """
     cell_coords = np.sort(cell_coords, axis = 0)
     # calculates average velocity of the track
     vel += [find_velocity(cell_coords, t_scale = t_scaling, t_min = min_t)]
@@ -109,7 +113,7 @@ def well_to_vel(data, well, t_scaling = 1, min_t = 2):
 well_list = ['XY01', 'XY02', 'XY03', 'XY04']
 type_list = ['None', '6F', '6FDD', '6FDDRR']
 data = {}
-dir = Path("/Users/ConradOakes/CellBaum/output/btrack_results/")
+dir = Path("/Users/ConradOakes/CellBaum/output/btrack_results/XY01")
 well = 'XY01'
 data = well_to_vel(dir, well, t_scaling = 15, min_t = 5)
 graph = pd.DataFrame(data)
