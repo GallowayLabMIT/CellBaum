@@ -104,9 +104,8 @@ rule h5_add:
         cp_csv = Path(config["output_dir"])/"cell_data"/"{well}"/"cell_locationsIdentifyPrimaryObjects.csv",
         initial_data = Path(config["output_dir"]) / "btrack_results"/"{well}"/"tracks.h5"
     params:
-        w = "{well}",
         add_on = config["CP_Data_Keep"]
     output:
         final_data = Path(config["output_dir"]) / "btrack_results"/"{well}"/"tracks_cp.h5"
     run:
-        add_to_h5(input.cp_csv, input.initial_data, params.w, params.add_on)
+        add_to_h5(input.cp_csv, input.initial_data, params.add_on)
