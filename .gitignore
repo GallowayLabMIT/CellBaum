@@ -3,7 +3,8 @@
 snakemake_logs
 cellbaum_config.yml
 .snakemake
-*output
+*output*
+*logs*
 cenv
 
 # Byte-compiled / optimized / DLL files

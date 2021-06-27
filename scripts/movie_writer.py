@@ -1,5 +1,6 @@
 import h5py
-from matplotlib import cm
+import matplotlib
+import matplotlib.cm
 import numpy as np
 from scipy import signal, ndimage
 from PIL import ImageDraw, Image
@@ -31,14 +32,7 @@ def outline(boolean_mask: np.ndarray) -> np.ndarray:
     Given a boolean mask representing a filled image, uses a convolution
     to outline the given object, returning a boolean array of this convolution.
     """
-    kernel = np.array([
-        [0, -1, 0],
-        [-1, 4, -1],
-        [0, -1, 0]
-    ])
-    convolution = signal.convolve2d(boolean_mask, kernel)
-    # Return a boolean mask for the edges
-    return (convolution != 0) & (convolution != 1)
+    return ndimage.laplace(boolean_mask)
 
 
 def write_frames(output_dir: Union[str, Path],
@@ -46,7 +40,8 @@ def write_frames(output_dir: Union[str, Path],
                  stitched_dir: Union[str, Path],
                  stitched_regex: str,
                  cryptomatte_dir: Union[str, Path],
-                 cryptomatte_regex: str) -> None:
+                 cryptomatte_regex: str,
+                 viz_type: str) -> None:
     """
     Writes out TIFF images with various overlays.
 
@@ -60,6 +55,8 @@ def write_frames(output_dir: Union[str, Path],
                         This path is typically the final CellProfiler output folder.
     cryptomatte_regex:  A regular expression with one capture-group for timepoints. This regex
                         is matched against the stitched regex.
+    viz_type:           A string, either 'outline' for simple outlining, 'children' for the child
+                        graph, or another string to lookup from the HDF5 file.
     
     Returns
     -------
@@ -119,6 +116,14 @@ def write_frames(output_dir: Union[str, Path],
                     segment_locs[i,0], segment_locs[i,1],
                     segment_locs[i+1,0], segment_locs[i+1,1]
                 ])
+        # If the viz type is something else, try to look it up now and convert to colors with viridis.
+        if viz_type not in ['outline', 'children']:
+            values = track_data['cp_data']['obj_type_1'][viz_type]
+            min_val = np.min(values)
+            max_val = np.max(values)
+            viridis = matplotlib.cm.get_cmap('viridis', 255)
+            rescaled_values = (values - min_val) / (max_val - min_val)
+            viz_map = viridis(rescaled_values)
 
         print('done!', flush=True)
         # At this point, for every time point we have the path to the cryptomatte and the stitched image.
@@ -140,17 +145,29 @@ def write_frames(output_dir: Union[str, Path],
                             drawer.line(segment, fill=(
                                 *base_color,
                                 int(255 * (trail_class - (timepoint - trail_length)) / trail_length)))
-                print('\tDone drawing trails\n\tDrawing objects...', flush=True)
+                print('\tDone drawing trails\n\tDrawing objects.', end='', flush=True)
                 for idx, object in enumerate(object_idx):
                     object_location = track_data['objects']['obj_type_1']['coords'][object,1:3]
                     obj_id = pixel_obj_ids[int(object_location[1]), int(object_location[0])]
+                    if viz_type == 'outline':
+                        pass
+                    elif viz_type == 'children':
+                        obj_color = matplotlib.colors.hsv_to_rgb(
+                            np.array([hue_mapping[object] / 255, 0.6, 0.9]))
+                        drawer.bitmap((0,0), Image.fromarray(pixel_obj_ids == obj_id),
+                            tuple(int(255 * x) for x in obj_color))
+                    else:
+                        drawer.bitmap((0,0), Image.fromarray(pixel_obj_ids == obj_id),
+                            tuple(int(255 * x) for x in viz_map[object,:]))
                     drawer.bitmap(
                         (0,0),
                         Image.fromarray(outline(pixel_obj_ids == obj_id)),
                         tuple(base_color))
-                    print('.', end='', flush=True)
+                    if idx % 10 == 0:
+                        print('.', end='', flush=True)
                     if idx > 100:
                         break
+                print('',flush=True)
                 stitched_image.save(output_dir / f"T{timepoint:0{twidth}}.tiff")
 
 write_frames(
@@ -159,5 +176,6 @@ write_frames(
     "C:/Users/ChemeGrad2019/Massachusetts Institute of Technology/GallowayLab - Documents/projects/Consortia/KTR-Timelapse/stitched/XY03",
     r"T(\d{4})_CH3stitched-1.tif",
     "C:/Users/ChemeGrad2019/Massachusetts Institute of Technology/GallowayLab - Documents/projects/Consortia/KTR-Timelapse/cell_data/XY03",
-    r"T(\d{4})_CH3stitched-1_Objects.tiff"
+    r"T(\d{4})_CH3stitched-1_Objects.tiff",
+    'Intensity_MeanIntensity_Blue'
 )
