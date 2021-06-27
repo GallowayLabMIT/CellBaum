@@ -1,27 +1,44 @@
 import h5py
+from matplotlib import cm
 import numpy as np
+from scipy import signal, ndimage
 from PIL import ImageDraw, Image
 
 import re
 import itertools
 from pathlib import Path
+import random
 
 from typing import Union
 
-def object_bitmask(cmap_pixels, image_size, x:float, y:float) -> np.ndarray:
+def cmap_to_ids(cmap_image: Image.Image, centers: np.ndarray) -> np.ndarray:
     """
-    Uses a Watershed-like algorithm to return a bitmask for the given object,
-    using a pixel value x/y and the cryptomatte image.
+    Converts a cryptomatte image into a flattened representation where
+    instead of a 3D color image, we have a 2D image where entries are
+    unique object numbers (e.g. not shared across colors)
     """
-    result = np.array(image_size, dtype=bool)
-    start_x, start_y = (int(x), int(y))
-    color = cmap_pixels[start_x, start_y]
-    
-    queue = [(start_x, start_y)]
+    pixel_data = np.array(cmap_image)
+    _, flattened = np.unique(pixel_data.reshape(-1,3), axis=0, return_inverse=True)
+    flattened = np.array(flattened.reshape(pixel_data.shape[:2]), dtype='uint16')
+    markers = np.zeros_like(flattened, dtype=int)
 
-    while len(queue) > 0:
-        pixel = queue.pop(0)
-        result[pixel[0], pixel[1]] = True
+    approx_centers = np.array(centers, dtype=int)
+    markers[approx_centers[:,1], approx_centers[:,0]] = range(1, 1 + centers.shape[0])
+    return ndimage.watershed_ift(flattened, markers)
+
+def outline(boolean_mask: np.ndarray) -> np.ndarray:
+    """
+    Given a boolean mask representing a filled image, uses a convolution
+    to outline the given object, returning a boolean array of this convolution.
+    """
+    kernel = np.array([
+        [0, -1, 0],
+        [-1, 4, -1],
+        [0, -1, 0]
+    ])
+    convolution = signal.convolve2d(boolean_mask, kernel)
+    # Return a boolean mask for the edges
+    return (convolution != 0) & (convolution != 1)
 
 
 def write_frames(output_dir: Union[str, Path],
@@ -48,7 +65,11 @@ def write_frames(output_dir: Union[str, Path],
     -------
     None, but outputs files into output_dir.
     """
+    base_color = [157, 5, 252]
+    trail_length = 5
 
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
     with h5py.File(track_data, 'r') as track_data:
         image_map = {}
         for child in Path(stitched_dir).iterdir():
@@ -67,24 +88,70 @@ def write_frames(output_dir: Union[str, Path],
         for v in image_map.values():
             if v['cmap'] is None:
                 raise RuntimeError(f"Stitched image {v['stitch'].name} does not have a corresponding cryptomatte!")
+        print('Stitched images and cryptomattes registered successfully.\nPrecomputing...', end='', flush=True)
 
+        # Create segment mapping
+        segments = {k: [] for k in sorted(image_map.keys())[1:]}
+        # Iterate over segment table, building hue mapping and segment mapping
+        track_group = track_data['tracks']['obj_type_1']
+        hue_mapping = np.zeros_like(track_data['objects']['obj_type_1']['coords'][:,0])
+        lbepr = track_group['LBEPR'][:,:5]
+        for track_idx in range(lbepr.shape[0]):
+            # If we are our own root, then assign random color. Otherwise, offset from parent color
+            if lbepr[track_idx,0] == lbepr[track_idx,4]:
+                hue = random.randint(0,255)
+            else:
+                hue = (hue_mapping[lbepr[track_idx,3]] + random.randint(-15,15)) % 255
+            
+            tracks = track_group['tracks'][track_group['map'][track_idx,0]:track_group['map'][track_idx,1]]
+            if len(tracks) != lbepr[track_idx,2] - lbepr[track_idx,1] + 1:
+                continue
+            # Compute segments
+            segment_locs = np.zeros((tracks.shape[0],2))
+            for i, obj_idx in enumerate(tracks):
+                if obj_idx < 0:
+                    segment_locs[i,:] = track_group['dummies'][-1 - obj_idx,1:3]
+                else:
+                    segment_locs[i,:] = track_data['objects']['obj_type_1']['coords'][obj_idx, 1:3]
+                    hue_mapping[obj_idx] = hue
+            for i, k in enumerate(range(lbepr[track_idx,1], lbepr[track_idx,2])):
+                segments[k + 1].append([
+                    segment_locs[i,0], segment_locs[i,1],
+                    segment_locs[i+1,0], segment_locs[i+1,1]
+                ])
+
+        print('done!', flush=True)
         # At this point, for every time point we have the path to the cryptomatte and the stitched image.
+        twidth = int(np.ceil(np.log10(len(image_map))))
         for timepoint in sorted(image_map.keys()):
+            print(f'Rendering frame {timepoint}:')
             files = image_map[timepoint]
-            object_idx = np.where(track_data['objects']['obj_type_1']['coords'][:,0] == timepoint)
+            object_idx = np.where(track_data['objects']['obj_type_1']['coords'][:,0] == timepoint)[0]
             # Open the stitched and cryptomatte images
             with Image.open(files['stitch']) as stitched_image, Image.open(files['cmap']) as cmap_image:
-                drawer = ImageDraw.Draw(stitched_image)
-                cmap_pixels = cmap_image.load()
-
-
-                print(stitched_image.size)
-                for object in object_idx:
-                    pass
-
-
-                pass
-
+                # Generate object id mask
+                pixel_obj_ids = cmap_to_ids(cmap_image, track_data['objects']['obj_type_1']['coords'][object_idx,1:3])
+                # Create overlay drawer
+                drawer = ImageDraw.Draw(stitched_image, 'RGBA')
+                # Draw all relevant tracks
+                for trail_class in range(timepoint - trail_length, timepoint + 1):
+                    if trail_class in segments:
+                        for segment in segments[trail_class]:
+                            drawer.line(segment, fill=(
+                                *base_color,
+                                int(255 * (trail_class - (timepoint - trail_length)) / trail_length)))
+                print('\tDone drawing trails\n\tDrawing objects...', flush=True)
+                for idx, object in enumerate(object_idx):
+                    object_location = track_data['objects']['obj_type_1']['coords'][object,1:3]
+                    obj_id = pixel_obj_ids[int(object_location[1]), int(object_location[0])]
+                    drawer.bitmap(
+                        (0,0),
+                        Image.fromarray(outline(pixel_obj_ids == obj_id)),
+                        tuple(base_color))
+                    print('.', end='', flush=True)
+                    if idx > 100:
+                        break
+                stitched_image.save(output_dir / f"T{timepoint:0{twidth}}.tiff")
 
 write_frames(
     "C:/Users/ChemeGrad2019/Massachusetts Institute of Technology/GallowayLab - Documents/projects/Consortia/KTR-Timelapse/movie_output",
