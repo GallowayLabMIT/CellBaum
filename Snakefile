@@ -4,7 +4,7 @@ from scripts.stitching_function import stitching
 from scripts.btracker import btracking
 from scripts.call_cp import call_cp
 from scripts.hd5_processing import add_to_h5
-configfile: "cellbaum_config.yml"
+configfile: "supercloud_config.yml"
 from pathlib import Path
 import os
 import shutil

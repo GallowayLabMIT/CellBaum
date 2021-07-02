@@ -1,0 +1,48 @@
+---
+data_dir: /home/gridsan/groups/galloway/data/cellbaum_dynamics/3dpi_timelapse
+fiji_dir: /home/gridsan/groups/galloway/bin/Fiji.app
+cp_dir: /home/gridsan/groups/galloway/conda_envs/cellbaum/bin/cellprofiler
+pipe_dir: /home/gridsan/groups/galloway/CellBaum/cp_files
+output_dir: /home/gridsan/groups/galloway/CellBaum/output/
+log_dir: /home/gridsan/groups/galloway/CellBaum/snakemake_logs
+cell_config: /home/gridsan/groups/galloway/CellBaum/models/cell_config.json
+minsize: 20
+maxsize: 30
+pre_stitch_correction_needed: True
+stitching:
+  grid_width: 5
+  grid_height: 5
+  z_min: 1
+  z_max: 3
+Name_keys:
+ - 2021.01.18_10X_time_well_000{pp}_Z{ttt}_CH1.tif
+ - 2021.01.18_10X_time_well_000{pp}_Z{ttt}_CH3_threshold.tiff
+ - 2021.01.18_10X_time_well_000{pp}_Z{ttt}_CH4.tif
+ - 2021.01.18_10X_time_well_000{pp}_Z{ttt}_Overlay.tif
+Prefix: 
+ - CH1
+ - CH3
+ - CH4
+ - Overlay
+Template: 1
+Update_method: EXACT
+Max_search_radius: 100
+Volume: 
+  x:
+   - 0
+   - 3700
+  y:
+   - 0
+   - 2800
+  z:
+   - 0
+   - 4
+Step_size: 1
+CP_Data_Keep:
+ - Metadata_time
+ - Location_Center_X
+ - Location_Center_Y
+ - Metadata_zstep
+ - ImageNumber
+ - ObjectNumber
+ - AreaShape_Area
