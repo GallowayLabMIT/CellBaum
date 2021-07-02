@@ -7,13 +7,14 @@ def val_env(cp_dir, fiji_dir):
     if cp_path.exists() == False:
         raise RuntimeError('Unable to locate the Cellprofiler folder')
 
-    for search in ['**/cp', '**/CellProfiler.exe']:
+    cp_run = None
+    for search in ['**/cp', '**/CellProfiler.exe', '**/cellprofiler']:
         found_files = cp_path.glob(search)
         for file in found_files:
             if file.exists():
                 cp_run = file
                 break
-    if cp_run.exists() == False:
+    if (cp_run is not None) and (cp_run.exists() == False):
         raise RuntimeError('Unable to locate Cell profiler binary')
     
     if fiji_path.exists() == False:
@@ -38,6 +39,6 @@ def val_env(cp_dir, fiji_dir):
     return(cp_run, fiji_path, java_run)
 
 """
-cp, fiji, java = val_env("/Applications", "/Applications")
+cp, fiji, java = val_env("/Applications", "/Applications/Fiji.app")
 print(cp, fiji, java)
 """
