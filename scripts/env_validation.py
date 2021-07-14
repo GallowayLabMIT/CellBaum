@@ -1,5 +1,11 @@
 from pathlib import Path
 
+"""
+Looks for existence of cell profiler, fiji, Java, and MIST, raising errors if any are missing
+
+cp_dir: directory of cell profiler
+fiji_dir: directory of the fiji application
+"""
 def val_env(cp_dir, fiji_dir):
     cp_path = Path(cp_dir)
     fiji_path = Path(fiji_dir)

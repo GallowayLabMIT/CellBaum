@@ -20,21 +20,21 @@ Uses BTracker to generate h5 files of cell tracks.
 input_csv: path to the file containing CellProfiler-exported data.
 cell_config: path to json with the cell_config model
 output_file: the output h5 file write
-well: the well being tracked
 update: either 'EXACT' or 'APPROXIMATE'
+z_filter: z level to filter by
 search: the minimum search distance (default = 100)
-volume: the size of the area being tracked
+volume: the size of the area being tracked (as a tibble of tibbles)
 step: time step for tracking
 """
 def btracking(input_csv, cell_config, output_file, update = 'EXACT', 
-  search = 100, vol = ((0,3700),(0,2800),(0,4)), step = 1):
+  z_filter = 1, search = 100, vol = ((0,3700),(0,2800),(0,4)), step = 1):
   # creates objects to track
   #objects = Path(input) / "cell_locationsIdentifyPrimaryObjects.csv"
   objects = pd.read_csv(input_csv)
   formatted = objects.rename(columns={'Metadata_time' : 't', 'Location_Center_X' : 'x', 
                                       'Location_Center_Y' : 'y', 'Metadata_zstep' : 'z'})
   formatted = formatted[['t', 'x', 'y', 'z']]
-  formatted = formatted[formatted['z'] == 1]
+  formatted = formatted[formatted['z'] == z_filter]
   objects_to_track = localizations_to_objects(formatted)
   # initialise a tracker session using a context manager
   with btrack.BayesianTracker() as tracker:
