@@ -4,6 +4,7 @@ from scripts.stitching_function import stitching
 from scripts.btracker import btracking
 from scripts.call_cp import call_cp
 from scripts.hd5_processing import add_to_h5
+from scripts.dpi_merge import merge_dpi
 configfile: "supercloud_config.yml"
 from pathlib import Path
 import os
@@ -21,9 +22,20 @@ rule all:
     input: 
         expand(Path(config["output_dir"]) / "btrack_results"/"{well}"/"tracks_cp.h5", well = WELL)
 
+rule merge_dpi:
+    input:
+        image_dir = Path(config["data_dir"])
+    params:
+        merging_wells = config["wells_to_merge"],
+        format_regexp = config["image_regexp"]
+    output:
+        image_dir = directory(Path(config["output_dir"])/"merged")
+    run:
+        merge_dpi(input.image_dir, output.image_dir, params.merging_wells, params.format_regexp)
+
 rule process_image:
     input: 
-        image_dir = Path(config["data_dir"]) / '{well}'
+        image_dir = Path(config["data_dir"]) / "merged"/'{well}'
     params:
         pipeline = Path(config["pipe_dir"]) / "img_processing.cppipe"
     log:
