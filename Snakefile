@@ -70,8 +70,7 @@ rule stitching:
         template = config["Template"],
         grid_width = config["stitching"]["grid_width"],
         grid_height = config["stitching"]["grid_height"],
-        min_z = config["stitching"]["z_min"],
-        max_z = config["stitching"]["z_max"]
+        z_extent = None if 'z_min' not in config['stitching'] else (config['stitching']['z_min'], config['stitching']['z_max'])
     log:
         Path(config["log_dir"]) / "{well}stitching_log.txt"
     output:
@@ -79,7 +78,7 @@ rule stitching:
     run:
         stitching(fiji_app, java_app, input.main_dir, params.name_keys,
                    params.prefix, params.template, params.grid_width, params.grid_height, 
-                  output.stitch_dir, params.min_z, params.max_z, log[0])
+                  output.stitch_dir, params.z_extent, log[0])
 
 rule cp_process:
     input:
