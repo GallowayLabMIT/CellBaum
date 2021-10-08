@@ -1,25 +1,31 @@
 from pathlib import Path
 
-"""
-Looks for existence of cell profiler, fiji, Java, and MIST, raising errors if any are missing
+def find_cp(cp_dir_path): 
+    """
+    Locates the cell profiler executable given a search directory
+    """
+    for search in ['**/cp', '**/CellProfiler.exe', '**/cellprofiler']:
+        found_files = cp_dir_path.glob(search)
+        for file in found_files:
+            if file.exists():
+                return file
+    return None
 
-cp_dir: directory of cell profiler
-fiji_dir: directory of the fiji application
-"""
 def val_env(cp_dir, fiji_dir):
+    """
+    Looks for existence of cell profiler, fiji, Java, and MIST, raising errors if any are missing
+
+    cp_dir: directory of cell profiler
+    fiji_dir: directory of the fiji application
+    """
     cp_path = Path(cp_dir)
     fiji_path = Path(fiji_dir)
     
     if cp_path.exists() == False:
         raise RuntimeError('Unable to locate the Cellprofiler folder')
 
-    cp_run = None
-    for search in ['**/cp', '**/CellProfiler.exe', '**/cellprofiler']:
-        found_files = cp_path.glob(search)
-        for file in found_files:
-            if file.exists():
-                cp_run = file
-                break
+    cp_run = find_cp(cp_path)
+
     if (cp_run is not None) and (cp_run.exists() == False):
         raise RuntimeError('Unable to locate Cell profiler binary')
     
