@@ -31,6 +31,8 @@ def btracking(input_csv, cell_config, output_file, update = 'EXACT',
   # creates objects to track
   #objects = Path(input) / "cell_locationsIdentifyPrimaryObjects.csv"
   objects = pd.read_csv(input_csv)
+  if 'Metadata_zstep' not in objects.columns:
+    objects['Metadata_zstep'] = 1
   formatted = objects.rename(columns={'Metadata_time' : 't', 'Location_Center_X' : 'x', 
                                       'Location_Center_Y' : 'y', 'Metadata_zstep' : 'z'})
   formatted = formatted[['t', 'x', 'y', 'z']]

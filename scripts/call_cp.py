@@ -24,5 +24,6 @@ def call_cp(cp_exe, pipeline_filename, output_dir, image_dir, logfile):
                 f'--image-directory={str(image_dir)}']
     with open(logfile, 'w') as log:
         log.write('Starting CellProfiler with arguments {}\n'.format(run_args))
+        log.flush()
         run_result = subprocess.run(run_args, stdout=log, stderr=log)
         return run_result.returncode

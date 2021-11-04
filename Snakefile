@@ -10,6 +10,7 @@ from pathlib import Path
 import os
 import shutil
 #find required apps
+print(config)
 cp_app, fiji_app, java_app = val_env(Path(config["cp_dir"]), Path(config["fiji_dir"]))
 #generate list of wells
 WELL = []
@@ -117,7 +118,7 @@ rule btrack:
         final_data = Path(config["output_dir"]) / "btrack_results"/"{well}"/"tracks.h5"
     run:
         btracking(input.cp_csv, params.cell_configs, output.final_data, 
-            params.update, params.search, params.vol, params.step)
+            update=params.update, search=params.search, vol=params.vol, step=params.step)
 
 
 rule h5_add:
