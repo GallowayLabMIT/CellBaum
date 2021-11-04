@@ -9,4 +9,4 @@ module load anaconda/2021a
 eval "$(conda shell.bash hook)"
 conda activate /home/gridsan/groups/galloway/conda_envs/cellbaum
 # Run snakemake
-snakemake -j48 -n -r --verbose
+snakemake -j48 --verbose
