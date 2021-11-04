@@ -6,6 +6,10 @@ pipe_dir: /home/gridsan/groups/galloway/CellBaum/cp_files
 output_dir: /home/gridsan/groups/galloway/CellBaum/output/
 log_dir: /home/gridsan/groups/galloway/CellBaum/snakemake_logs
 cell_config: /home/gridsan/groups/galloway/CellBaum/models/cell_config.json
+wells_to_merge: 
+  - 2dpi_timelapse
+  - 3dpi_timelapse
+image_regexp: re.compile(r"""(?P<prefix>.*)(?P<time>_T\d{4})(?P<suffix>.*).tif""", re.VERBOSE)
 minsize: 20
 maxsize: 30
 pre_stitch_correction_needed: True

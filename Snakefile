@@ -4,6 +4,7 @@ from scripts.stitching_function import stitching
 from scripts.btracker import btracking
 from scripts.call_cp import call_cp
 from scripts.hd5_processing import add_to_h5
+from scripts.dpi_merge import merge_dpi
 configfile: "supercloud_config.yml"
 from pathlib import Path
 import os
@@ -21,9 +22,20 @@ rule all:
     input: 
         expand(Path(config["output_dir"]) / "btrack_results"/"{well}"/"tracks_cp.h5", well = WELL)
 
+rule merge_dpi:
+    input:
+        image_dir = Path(config["data_dir"])
+    params:
+        merging_wells = config["wells_to_merge"],
+        format_regexp = config["image_regexp"]
+    output:
+        image_dir = directory(Path(config["output_dir"])/"merged")
+    run:
+        merge_dpi(input.image_dir, output.image_dir, params.merging_wells, params.format_regexp)
+
 rule process_image:
     input: 
-        image_dir = Path(config["data_dir"]) / '{well}'
+        image_dir = Path(config["data_dir"]) / "merged"/'{well}'
     params:
         pipeline = Path(config["pipe_dir"]) / "img_processing.cppipe"
     log:
@@ -48,8 +60,7 @@ rule stitching:
         template = config["Template"],
         grid_width = config["stitching"]["grid_width"],
         grid_height = config["stitching"]["grid_height"],
-        min_z = config["stitching"]["z_min"],
-        max_z = config["stitching"]["z_max"]
+        z_extent = None if 'z_min' not in config['stitching'] else (config['stitching']['z_min'], config['stitching']['z_max'])
     log:
         Path(config["log_dir"]) / "{well}stitching_log.txt"
     output:
@@ -57,7 +68,7 @@ rule stitching:
     run:
         stitching(fiji_app, java_app, input.main_dir, params.name_keys,
                    params.prefix, params.template, params.grid_width, params.grid_height, 
-                  output.stitch_dir, params.min_z, params.max_z, log[0])
+                  output.stitch_dir, params.z_extent, log[0])
 
 rule cp_process:
     input:

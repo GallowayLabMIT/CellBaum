@@ -20,29 +20,34 @@ def java_quote(input_str):
     return input_str
 
 """
-Uses NIST to stitch together sets of images. Requires the Fiji application to 
+Uses MIST to stitch together sets of images. Requires the Fiji application to 
 be installed and for it to have added the NIST plugin. 
 
 fiji_dir: the path to the Fiji app
 java_dir: the path to the Java app
-template_dir: path to the folder with the template images
-other_dir: path to the folder with other images
+image_dir: path to the folder with the images
 name_keys: a list of the regular expressions for the file names of each channel 
     (requires a position {p} and z {t} argument)
 prefix: the names of each channel (for final output); should in the same order 
     as name_keys
 template: the position in name_keys/prefix of the channel that is used as a 
     stitching template
+grid_width: expected width of stitched grid in images
+grid_height: expected height of stitched grid in images
 output: the output directory
+z_min: minimum z level
+z_max: maximum z level
 log_filename: name for log
 order: order of the positions in the {p} of name_keys (default = SEQUENTIAL)
 scope_path: the microscopes path (defalut = HORIZONTALCONTINUOUS)
-z_list: number of z levels
 """
 def stitching(fiji_dir, java_dir, image_dir, name_keys, prefix, template, grid_width, grid_height,
-              output, z_min, z_max, log_filename = None, order = "SEQUENTIAL", 
+              output, z_extent = None, log_filename = None, order = "SEQUENTIAL", 
               scope_path = "HORIZONTALCONTINUOUS"):
-    z_list = f"{z_min}-{z_max}"
+    if z_extent is None:
+        z_list = '0'
+    else:
+        z_list = f"{z_extent[0]}-{z_extent[1]}"
     output = Path(output)
     image_dir = Path(image_dir)
     well = os.path.basename(os.path.normpath(image_dir))
@@ -86,7 +91,7 @@ def stitching(fiji_dir, java_dir, image_dir, name_keys, prefix, template, grid_w
                     "--extentWidth": "placeholder",
                     "--extentHeight": "placeholder",
                     "--timeSlices": "placeholder",
-                    "--isTimeSlicesEnabled": 'True',
+                    "--isTimeSlicesEnabled": 'True' if z_extent is not None else 'False',
                     "--outputPath": "placeholder",
                     "--displayStitching": 'False',
                     "--outputFullImage": 'True',

@@ -11,6 +11,8 @@ Calculates average velocity of a cell along its track.
 cell_data: the track's txyz data
 t_scale: the units of time being used
 t_min: minimum points in time that should be in the track's data to calculate velocity
+
+returns: average velocity of the track
 """
 def find_velocity(cell_data, t_scale=1, t_min = 2):
   v_temp = []
@@ -34,6 +36,8 @@ Calculates average direction of a cell along its track.
 cell_data: the track's txyz data
 t_scale: the units of time being used
 t_min: minimum points in time that should be in the track's data to calculate velocity
+
+returns: average direction of the track
 """
 def find_direction(cell_data, t_scale=1, t_min = 2):
   d_temp = []
@@ -47,7 +51,7 @@ def find_direction(cell_data, t_scale=1, t_min = 2):
       y = ((pointB[2])-(pointA[2]))
       if x == 0:
         theta = np.pi/2
-      elif y < 0:
+      elif x < 0:
         theta = np.arctan(y/x)+np.pi
       else:
         theta = np.arctan(y/x)
@@ -70,7 +74,7 @@ min_t: minimum points in time that should be in the track's data to calculate ve
 """
 def well_to_vel(data, well, t_scaling = 1, min_t = 2):
   #get cell velocities
-  v_track = h5py.File(data/'tracks.h5')
+  v_track = h5py.File(data/'old_tracks.h5')
   #gets more convenient names for dataframes in the h5 file
   objects = v_track['objects']['obj_type_1']
   tracks = v_track['tracks']['obj_type_1']
@@ -124,7 +128,7 @@ fig, axes = plt.subplots()
 violin = seaborn.violinplot(data = data)
 plt.show()
 
-"""
+
 for well in range(len(well_list)):
     data[type_list[well]] = well_to_vel(dir, well_list[well], t_scaling = 15, min_t = 5)
 
@@ -135,4 +139,3 @@ fig, axes = plt.subplots()
 violin = seaborn.violinplot(data = data)
 violin.set(ylabel = 'Velocity')
 plt.show()
-"""
