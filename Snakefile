@@ -5,15 +5,21 @@ from scripts.btracker import btracking
 from scripts.call_cp import call_cp
 from scripts.hd5_processing import add_to_h5
 from scripts.dpi_merge import merge_dpi
-configfile: "supercloud_config.yml"
+configfile: "cellbaum_config.yml"
 from pathlib import Path
 import os
 import shutil
 #find required apps
+print(config)
 cp_app, fiji_app, java_app = val_env(Path(config["cp_dir"]), Path(config["fiji_dir"]))
 #generate list of wells
 WELL = []
-for check in Path(config["data_dir"]).iterdir():
+if 'folders_to_merge' in config:
+    well_path = Path(config["data_dir"])/config['folders_to_merge'][0]
+else:
+    well_path = Path(config["data_dir"])
+
+for check in well_path.iterdir():
     if check.is_dir():
         w = os.path.basename(os.path.normpath(check))
         WELL.append(w)
@@ -26,12 +32,17 @@ rule merge_dpi:
     input:
         image_dir = Path(config["data_dir"])
     params:
-        merging_wells = config["wells_to_merge"],
-        format_regexp = config["image_regexp"]
+        merging_wells = config["folders_to_merge"],
+        format_regexp = re.compile(config["image_regexp"])
     output:
-        image_dir = directory(Path(config["output_dir"])/"merged")
+        image_dir = directory(Path(config["output_dir"])/"merged"),
+        individual_folders = directory(expand(Path(config["output_dir"])/"merged"/"{well}", well = WELL))
     run:
-        merge_dpi(input.image_dir, output.image_dir, params.merging_wells, params.format_regexp)
+        merge_dpi(input.image_dir,
+                  output.image_dir,
+                  params.merging_wells,
+                  params.format_regexp)
+
 
 rule process_image:
     input: 
@@ -49,7 +60,7 @@ rule process_image:
 if config["pre_stitch_correction_needed"]:
     stitching_dir = Path(config["output_dir"])/"corrected"/"{well}"
 else:
-    stitching_dir = Path(config["data_dir"])/"{well}"
+    stitching_dir = Path(config["output_dir"])/"merged"/"{well}"
 
 rule stitching:
     input:
@@ -107,7 +118,7 @@ rule btrack:
         final_data = Path(config["output_dir"]) / "btrack_results"/"{well}"/"tracks.h5"
     run:
         btracking(input.cp_csv, params.cell_configs, output.final_data, 
-            params.update, params.search, params.vol, params.step)
+            update=params.update, search=params.search, vol=params.vol, step=params.step)
 
 
 rule h5_add:

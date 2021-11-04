@@ -13,10 +13,12 @@ regexp: the regular expression matching each image name
 def merge_dpi(input_dir, output_dir, dpi_list, regexp):
     future_time_to_add = 0
     time_to_add = 0
+    input_dir = Path(input_dir)
+    output_dir = Path(output_dir)
     #for each dpi folder...
     for dpis in dpi_list:
         # saves path
-        dpi_path = Path(input_dir/dpis)
+        dpi_path = input_dir/dpis
         # calculates time offset
         time_to_add = time_to_add+future_time_to_add
         #for each well folder...
