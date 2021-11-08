@@ -26,7 +26,7 @@ def val_env(cp_dir, fiji_dir):
 
     cp_run = find_cp(cp_path)
 
-    if (cp_run is not None) and (cp_run.exists() == False):
+    if (cp_run is None) or (cp_run.exists() == False):
         raise RuntimeError('Unable to locate Cell profiler binary')
     
     if fiji_path.exists() == False:
