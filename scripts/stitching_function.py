@@ -82,7 +82,6 @@ def stitching(fiji_dir, java_dir, image_dir, name_keys, prefix, template, grid_w
                     "--filenamePattern": "placeholder",
                     "--filenamePatternType": "placeholder",
                     "--gridOrigin": "UL",
-                    "--assembleFromMetadata": 'False',
                     "--assembleNoOverlap": 'False',
                     "--globalPositionsFile": '[]',
                     "--numberingPattern": "placeholder",
@@ -141,6 +140,7 @@ def stitching(fiji_dir, java_dir, image_dir, name_keys, prefix, template, grid_w
                 #switch to the java directory
                 os.chdir(fiji_dir)
                 args_dict = BASE_ARGS
+                args_dict["--assembleFromMetadata"] = 'False'
                 args_dict["--gridWidth"] = str(grid_width)
                 args_dict["--gridHeight"] = str(grid_height)
                 args_dict["--imageDir"] =  java_quote(str(image_set))
@@ -169,6 +169,7 @@ def stitching(fiji_dir, java_dir, image_dir, name_keys, prefix, template, grid_w
                         channel_set = channel_set.replace('well', well)
                         #create arguments assembling from the template channel's metadata
                         sec_dict = BASE_ARGS
+                        sec_dict["--assembleFromMetadata"] = 'True'
                         sec_dict["--gridWidth"] = str(grid_width)
                         sec_dict["--gridHeight"] = str(grid_height)
                         sec_dict["--imageDir"] =  java_quote(str(image_dir/t))
