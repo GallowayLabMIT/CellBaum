@@ -176,7 +176,7 @@ def stitching(fiji_dir, java_dir, image_dir, name_keys, prefix, template, grid_w
                         sec_dict["--filenamePatternType"]= order
                         sec_dict["--globalPositionsFile"]= java_quote(
                             str(output/(outfile+ 'global-positions-{t}.txt')) if z_extent is not None 
-                            else str(output/outfile + 'global-positions-0.txt'))
+                            else str(output/(outfile + 'global-positions-0.txt')))
                         sec_dict["--numberingPattern"]= scope_path
                         sec_dict["--startRow"]= '0'
                         sec_dict["--startCol"]= '0'
