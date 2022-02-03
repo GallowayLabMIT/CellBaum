@@ -27,6 +27,29 @@ Afterwards, you can activate the local environment with:
 ```
 Note that you *must* use a relative or absolute path (e.g. include the `./`), this is how Conda identifies locally installed environments versus named, global environments.
 
+## Using Micromamba
+After getting the latest version of micromamba and unpacking it into your `PATH`:
+```
+https://micromamba.snakepit.net/api/micromamba/win-64/latest
+https://micromamba.snakepit.net/api/micromamba/osx-64/latest
+https://micromamba.snakepit.net/api/micromamba/linux-64/latest
+```
+
+you can create the main environment with:
+```
+micromamba create -p ./cenv --file env.yml
+```
+
+If you need the 'extras' (e.g. for installing on a cluster), you can do:
+```
+micromamba update -p ./cenv --file cp_addons.yml
+```
+
+To activate the environment, you can use
+```
+micromamba activate ./cenv
+```
+
 ## Cluster/headless/Linux install
 
 If you need to install CellProfiler within Conda (e.g. on a cluster), you should update the environment
@@ -46,8 +69,7 @@ Fiji is technically available through Conda, but the version it installs is very
 ./path/to/ImageJ-YOUR_OS --update add-update-site MIST https://sites.imagej.net/NIST-ISG-MIST/
 ./path/to/ImageJ-YOUR_OS --update update
 ```
-For example, on Linux, the first command could be 
+For example, on Linux, the first command could be
 ```
 wherever/you/put/Fiji.app/ImageJ-linux64 --update add-update-site MIST https://sites.imagej.net/NIST-ISG-MIST/
 ```
-
