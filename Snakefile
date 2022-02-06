@@ -5,10 +5,12 @@ from scripts.btracker import btracking
 from scripts.call_cp import call_cp
 from scripts.hd5_processing import add_to_h5
 from scripts.dpi_merge import merge_dpi
+from scripts.focus_point import find_focus
 configfile: "cellbaum_config.yml"
 from pathlib import Path
 import os
 import shutil
+import re
 #find required apps
 print(config)
 cp_app, fiji_app, java_app = val_env(Path(config["cp_dir"]), Path(config["fiji_dir"]))
@@ -23,48 +25,66 @@ for check in well_path.iterdir():
     if check.is_dir():
         w = os.path.basename(os.path.normpath(check))
         WELL.append(w)
+        
+last_dir = Path(config["data_dir"])
 
 rule all:
     input: 
         expand(Path(config["output_dir"]) / "btrack_results"/"{well}"/"tracks_cp.h5", well = WELL)
 
-rule merge_dpi:
-    input:
-        image_dir = Path(config["data_dir"])
-    params:
-        merging_wells = config["folders_to_merge"],
-        format_regexp = re.compile(config["image_regexp"])
-    output:
-        image_dir = directory(Path(config["output_dir"])/"merged"),
-        individual_folders = directory(expand(Path(config["output_dir"])/"merged"/"{well}", well = WELL))
-    run:
-        merge_dpi(input.image_dir,
-                  output.image_dir,
-                  params.merging_wells,
-                  params.format_regexp)
+if config["folder_merging_needed"]:
+    rule merge_dpi:
+        input:
+            image_dir = last_dir
+        params:
+            merging_wells = config["folders_to_merge"]
+        output:
+            image_dir = directory(Path(config["output_dir"])/"merged"),
+            individual_folders = directory(expand(Path(config["output_dir"])/"merged"/"{well}", well = WELL))
+        run:
+            merge_dpi(input.image_dir,
+                    output.image_dir,
+                    params.merging_wells)
+    last_dir = Path(config["output_dir"])/"merged"
 
+if config["focus_finding_needed"]:
+    rule find_focus:
+        input:
+            image_dir = last_dir/"{well}"
+        params:
+            regex = re.compile(config["image_regex"], re.VERBOSE),
+            channels = config["focus_channels"]
+        log:
+            Path(config["log_dir"]) / "{well}zpoints_log.txt"
+        output:
+            image_dir = directory(Path(config["output_dir"]) / "focused"/ "{well}")
+        run:
+            find_focus(input.image_dir, 
+                        output.image_dir,
+                        params.regex, 
+                        params.channels,
+                        log_filename = log[0])
+    print(last_dir)
+    last_dir = Path(config["output_dir"]) / "focused"
 
-rule process_image:
-    input: 
-        image_dir = Path(config["data_dir"]) / "merged"/'{well}'
-    params:
-        pipeline = Path(config["pipe_dir"]) / "img_processing.cppipe"
-    log:
-        Path(config["log_dir"]) / "{well}img_processing_log.txt"
-    output:
-        image_dir = directory(Path(config["output_dir"]) /"corrected"/"{well}")
-    run:
-        shutil.copytree(input.image_dir, output.image_dir, dirs_exist_ok=True)
-        call_cp(cp_app, params.pipeline, output.image_dir, input.image_dir, log[0])
- 
 if config["pre_stitch_correction_needed"]:
-    stitching_dir = Path(config["output_dir"])/"corrected"/"{well}"
-else:
-    stitching_dir = Path(config["output_dir"])/"merged"/"{well}"
+    rule process_image:
+        input: 
+            image_dir = last_dir/"{well}"
+        params:
+            pipeline = Path(config["pipe_dir"]) / "img_processing.cppipe"
+        log:
+            Path(config["log_dir"]) / "{well}img_processing_log.txt"
+        output:
+            image_dir = directory(Path(config["output_dir"]) /"corrected"/"{well}")
+        run:
+            shutil.copytree(input.image_dir, output.image_dir, dirs_exist_ok=True)
+            call_cp(cp_app, params.pipeline, output.image_dir, input.image_dir, log[0])
+    last_dir = Path(config["output_dir"])/"corrected"
 
 rule stitching:
     input:
-        main_dir = stitching_dir
+        main_dir = last_dir/"{well}"
     params:
         name_keys = lambda wildcards : config["Name_keys"],
         prefix = config["Prefix"],

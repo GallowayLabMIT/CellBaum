@@ -2,19 +2,28 @@
 data_dir: /path/to/your/images
 cp_dir: /path/to/cell_profiler
 fiji_dir: /path/to/fiji
+
 pipe_dir: /path/to/cp_file/directory
 output_dir: /path/to/output/directory
 log_dir: /path/to/snakemake_logs
 cell_config: /path/to/models/cell_config.json
-minsize: minimum_cell_size
-maxsize: maximum_cell_size
+
+folder_merging_needed: false or true (if true, folders_to_merge needed)
+folders_to_merge:
+  - name1
+  - name2
+
+focus_finding_needed: false or true
+image_regex: """(?P<prefix>.*)_(?P<time>T\d{4})_(?P<well>XY\d{2})_(?P<position>\d{5})_Z(?P<stack>\d{3})_(?P<channel>.*)\.tif"""
+focus_channels: 
+ - single channel or list of all channels
+
 pre_stitch_correction_needed: false OR true
 stitching:
   grid_width: stitching_tiles_width
   grid_height: stitching_tiles_height
-  z_min: minimum_zstack
-  z_max: max_zstack
-  
+  z_min: minimum_zstack (optional)
+  z_max: max_zstack (optional)
 Name_keys:
  - 2021.01.18_10X_time_well_000{pp}_Z{ttt}_CH1.tif
  - 2021.01.18_10X_time_well_000{pp}_Z{ttt}_CH3_threshold.tiff
@@ -26,6 +35,10 @@ Prefix:
  - CH4
  - Overlay
 Template: 1
+
+minsize: minimum_cell_size
+maxsize: maximum_cell_size
+
 Update_method: EXACT or APPROXIMATE
 Max_search_radius: Number
 Volume: 

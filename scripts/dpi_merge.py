@@ -1,6 +1,7 @@
 import shutil
 import os
 from pathlib import Path
+import re
 
 """
 Merges the specified folders of images in the given order
@@ -10,7 +11,7 @@ output_dir: Directory to put compiled images in
 dpi_list: dpis to merge, in chronological order
 regexp: the regular expression matching each image name
 """
-def merge_dpi(input_dir, output_dir, dpi_list, regexp):
+def merge_dpi(input_dir, output_dir, dpi_list):
     future_time_to_add = 0
     time_to_add = 0
     input_dir = Path(input_dir)
@@ -45,13 +46,13 @@ def merge_dpi(input_dir, output_dir, dpi_list, regexp):
                 # for each image...
                 for image in sorted(next(os.walk(time_path))[2]):
                     # creates new name and copies it to new folder
-                    mo = regexp.search(image)
-                    new_name = f'{mo.group("prefix")}_T{time:04}{mo.group("suffix")}.tif'
+                    new_name = re.sub("(?P<time>T\d{4})", f'T{time:04}', image)
                     shutil.copy(time_path/image, output_time/new_name)
 
 '''
-format_regexp = re.compile(r"""(?P<prefix>.*)(?P<time>_T\d{4})(?P<suffix>.*).tif""", re.VERBOSE)
+format_regex = re.compile(r"""(?P<prefix>.*)_(?P<time>T\d{4})_(?P<well>XY\d{2})_(?P<position>\d{5})_Z(?P<stack>.{3})_(?P<channel>.*)\.tif""", re.VERBOSE)
 image_dir = Path("/Users/ConradOakes/CellBaum/output/")
 final_dir = Path("/Users/ConradOakes/CellBaum/output/renamed")
 dpi_order = ["2dpi", "3dpi"]
+merge_dpi(image_dir, final_dir, dpi_order, format_regex)
 '''
