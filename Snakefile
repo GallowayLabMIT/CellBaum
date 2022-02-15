@@ -1,7 +1,9 @@
 #get dependencies
 from scripts.env_validation import val_env
 from scripts.stitching_function import stitching
+from scripts.stitching_function import get_namekeys
 from scripts.btracker import btracking
+from scripts.btracker import get_image_dims
 from scripts.call_cp import call_cp
 from scripts.hd5_processing import add_to_h5
 from scripts.dpi_merge import merge_dpi
@@ -11,9 +13,14 @@ from pathlib import Path
 import os
 import shutil
 import re
+import contextlib
 #find required apps
 print(config)
 cp_app, fiji_app, java_app = val_env(Path(config["cp_dir"]), Path(config["fiji_dir"]))
+# generate name keys for stitching
+name_keys = get_namekeys(config["example_img_name"], config["Prefix"], config["image_regex"], 
+        focused = config["focus_finding_needed"])
+print(name_keys)
 #generate list of wells
 WELL = []
 if 'folders_to_merge' in config:
@@ -54,17 +61,13 @@ if config["focus_finding_needed"]:
         params:
             regex = re.compile(config["image_regex"], re.VERBOSE),
             channels = config["focus_channels"]
-        log:
-            Path(config["log_dir"]) / "{well}zpoints_log.txt"
         output:
             image_dir = directory(Path(config["output_dir"]) / "focused"/ "{well}")
         run:
             find_focus(input.image_dir, 
                         output.image_dir,
                         params.regex, 
-                        params.channels,
-                        log_filename = log[0])
-    print(last_dir)
+                        params.channels)
     last_dir = Path(config["output_dir"]) / "focused"
 
 if config["pre_stitch_correction_needed"]:
@@ -86,7 +89,6 @@ rule stitching:
     input:
         main_dir = last_dir/"{well}"
     params:
-        name_keys = lambda wildcards : config["Name_keys"],
         prefix = config["Prefix"],
         template = config["Template"],
         grid_width = config["stitching"]["grid_width"],
@@ -97,7 +99,7 @@ rule stitching:
     output:
         stitch_dir = directory(Path(config["output_dir"]) / "stitched"/"{well}")
     run:
-        stitching(fiji_app, java_app, input.main_dir, params.name_keys,
+        stitching(fiji_app, java_app, input.main_dir, name_keys,
                    params.prefix, params.template, params.grid_width, params.grid_height, 
                   output.stitch_dir, params.z_extent, log[0])
 
@@ -138,7 +140,7 @@ rule btrack:
         final_data = Path(config["output_dir"]) / "btrack_results"/"{well}"/"tracks.h5"
     run:
         btracking(input.cp_csv, params.cell_configs, output.final_data, 
-            update=params.update, search=params.search, vol=params.vol, step=params.step)
+            update=params.update, search=params.search, vol=params.vol, step=params.step, log_file = log[0])
 
 
 rule h5_add:

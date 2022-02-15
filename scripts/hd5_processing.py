@@ -1,3 +1,4 @@
+from ctypes import Union
 import pandas as pd
 import numpy as np
 import h5py
@@ -7,13 +8,22 @@ import os
 
 """
 Adds cell profiler data to an h5 file
-
-cp_loc: directory with the cell profiler csv
-initial_h5: path to h5 file
-to_save: list of cell profiler columns to save (or 'all' to save all cell profiler data)
-z: z level used (default = 1)
+Parameters
+----------
+cp_loc: Path
+    The directory with the cell profiler csv
+initial_h5: Path
+    The path to the h5 file
+to_save: List
+    The list of cell profiler columns to save (or 'all' to save all cell profiler data)
+z: int
+    The z level used (default = 1)
+Returns
+-------
+None
 """
-def add_to_h5(cp_loc, initial_h5, to_save, z = 1):
+def add_to_h5(cp_loc:Path, initial_h5:Path, to_save, z:int = 1)->None:
+    # :Union[list(str), str]
     # opens cp csv
     cp_data = pd.read_csv(Path(cp_loc))
     # gets h5 file and creates copy to create a new h5 file

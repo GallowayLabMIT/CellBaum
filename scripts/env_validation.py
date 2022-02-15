@@ -1,6 +1,6 @@
 from pathlib import Path
 
-def find_cp(cp_dir_path): 
+def find_cp(cp_dir_path:Path): 
     """
     Locates the cell profiler executable given a search directory
     """
@@ -11,12 +11,15 @@ def find_cp(cp_dir_path):
                 return file
     return None
 
-def val_env(cp_dir, fiji_dir):
+def val_env(cp_dir:Path, fiji_dir:Path):
     """
     Looks for existence of cell profiler, fiji, Java, and MIST, raising errors if any are missing
-
-    cp_dir: directory of cell profiler
-    fiji_dir: directory of the fiji application
+    Parameters
+    ----------
+    cp_dir: Path
+        The directory of cell profiler
+    fiji_dir: Path
+        The directory of the fiji application
     """
     cp_path = Path(cp_dir)
     fiji_path = Path(fiji_dir)

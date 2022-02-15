@@ -8,42 +8,100 @@ Created on Thu Mar  4 23:48:30 2021
 import subprocess
 import sys
 import os
-import sys
 from pathlib import Path
 import contextlib
 import itertools
+import re
+from typing import List, Optional, Pattern
 
 
-def java_quote(input_str):
+def java_quote(input_str:str)->str:
     if " " in input_str:
         return f"'{input_str}'"
     return input_str
 
 """
+Takes a regular expression describing the images and generates 
+a list of namekeys for use by the stitching function.
+Parameters
+----------
+example_name: str
+    A string corresponding to an image in the dataset
+channels: list of strings 
+    A list of the channels that will be stitched
+regex: Regular Expression Pattern
+    The regular expression matching the dataset
+focused: Boolean 
+    Describing if the focus_point function is part of the pipeline (defalut = False)
+corrected: 
+    The list of channels corrected by img_processing, if any (defalut = [])
+Returns
+-------
+The list of strings used as namekeys by the stitching function
+"""
+def get_namekeys(example_name:str, channels:List[str], regex:Pattern[str], focused:bool = False, corrected:List[str] = [])->List[str]:
+    if re.match(regex, example_name):
+        namekeys:List[str] = []
+        # for each channel
+        for chan in channels:
+            # shift the regex into a namekey
+            new_reg = re.sub("_(?P<time>T\d{4})", "_time", example_name)
+            new_reg = re.sub("_(?P<well>XY\d{2})", "_well", new_reg)
+            new_reg = re.sub("_(?P<position>\d{5})", "_000{pp}", new_reg)
+            # use different name for corrected channels
+            if chan in corrected:
+                new_reg = re.sub("_Z(?P<stack>.{3})_(?P<channel>.*).tif", "_Z_"+chan+"_threshold.tiff", new_reg)
+            else:
+                new_reg = re.sub("_Z(?P<stack>.{3})_(?P<channel>.*).tif", "_Z_"+chan+".tif", new_reg)
+            # eliminate the z position for focused datasets
+            if focused:
+                new_reg = re.sub("_Z", "", new_reg)
+            else:
+                new_reg = re.sub("_Z", "_Z{ttt}", new_reg)
+            namekeys += [new_reg]
+        return namekeys
+    else:
+        raise RuntimeError("Explosion; Regular Expression Pattern does not match the example image")
+
+"""
 Uses MIST to stitch together sets of images. Requires the Fiji application to 
 be installed and for it to have added the NIST plugin. 
-
-fiji_dir: the path to the Fiji app
-java_dir: the path to the Java app
-image_dir: path to the folder with the images
-name_keys: a list of the regular expressions for the file names of each channel 
-    (requires a position {p} and z {t} argument)
-prefix: the names of each channel (for final output); should in the same order 
-    as name_keys
-template: the position in name_keys/prefix of the channel that is used as a 
-    stitching template
-grid_width: expected width of stitched grid in images
-grid_height: expected height of stitched grid in images
-output: the output directory
-z_min: minimum z level
-z_max: maximum z level
-log_filename: name for log
-order: order of the positions in the {p} of name_keys (default = SEQUENTIAL)
-scope_path: the microscopes path (defalut = HORIZONTALCONTINUOUS)
+Parameters
+----------
+fiji_dir: Path
+    The path to the Fiji app
+java_dir: Path
+    The path to the Java app
+image_dir: Path
+    Path to the folder with the images
+name_keys: List of strings
+    A list of the regular expressions for the file names of each channel. Requires a position {p} argument. 
+    If z_extent exists, also needs a z {t} argument
+prefix: List of strings
+    The names of each channel (for final output); should in the same order as name_keys
+template: Int
+    The index of the channel in name_keys/prefix that is used as a stitching template
+grid_width: Int
+    Expected width of stitched grid in images
+grid_height: Int
+    Expected height of stitched grid in images
+output: Path
+    The path to the output folder for the images created by the stitcher
+z_extent: (optional) List of strings
+    An optional list of a minimum and maximum z value (defalut = None)
+log_filename: (optional) Path
+    Path to the log file (default = None)
+order: str
+    The order of the positions in the {p} of name_keys (default = SEQUENTIAL)
+scope_path: str
+    The microscopes path (default = HORIZONTALCONTINUOUS)
+Returns
+-------
+An int (1 or 0) designating successful completion of the command line task
 """
-def stitching(fiji_dir, java_dir, image_dir, name_keys, prefix, template, grid_width, grid_height,
-              output, z_extent = None, log_filename = None, order = "SEQUENTIAL", 
-              scope_path = "HORIZONTALCONTINUOUS"):
+def stitching(fiji_dir:Path, java_dir:Path, image_dir:Path, name_keys:List[str], prefix:List[str], template:int, grid_width:int, grid_height:int,
+              output:Path, z_extent:Optional[List[int]] = None, log_filename:Optional[Path] = None, order:str = "SEQUENTIAL", 
+              scope_path:str = "HORIZONTALCONTINUOUS")->int:
     if z_extent is None:
         z_list = '0'
     else:
@@ -197,14 +255,22 @@ def stitching(fiji_dir, java_dir, image_dir, name_keys, prefix, template, grid_w
 """
 fiji_loc = Path('/Applications/Fiji.app')
 java_loc = Path('/Applications/Fiji.app/java/macosx/adoptopenjdk-8.jdk/jre/Contents/Home/bin/java')
-data_dir = Path('/Users/ConradOakes/CellBaum/output/corrected/XY01')
-name_key = ["2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_CH1.tif", "2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_CH3_threshold.tiff",
-             "2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_CH4.tif", "2021.01.18_10X_time_XY01_000{pp}_Z{ttt}_Overlay.tif"]
+data_dir = Path('/Users/ConradOakes/CellBaum/output/focused/XY01')
+name_key = ["2021.01.18_10X_time_XY01_000{pp}_CH1.tif", "2021.01.18_10X_time_XY01_000{pp}_CH3.tif",
+             "2021.01.18_10X_time_XY01_000{pp}_CH4.tif", "2021.01.18_10X_time_XY01_000{pp}_Overlay.tif"]
 prefixes = ["CH1", "CH3", "CH4", "Overlay"]
 main_chan = 1
 output_dir = Path("/Users/ConradOakes/CellBaum/output/stitched/XY01")
 log_dir = "/Users/ConradOakes/CellBaum/snakemake_logs/XY01stitching_log.txt"
 
 stitching(fiji_dir = fiji_loc, java_dir = java_loc, image_dir = data_dir, name_keys = name_key, prefix = prefixes, template = main_chan,
-              grid_width = 5, grid_height = 5, output = output_dir, z_min = 1, z_max = 3, log_filename=log_dir)
+              grid_width = 5, grid_height = 5, output = output_dir, log_filename=log_dir)
 """
+'''
+#2021.01.18_10X_time_well_000{pp}_CH1.tif
+channeles = ["CH1", "CH3", "CH4", "Overlay"]
+image_reg = re.compile(r"""(?P<prefix>.*)_(?P<time>T\d{4})_(?P<well>XY\d{2})_(?P<position>\d{5})_Z(?P<stack>.{3})_(?P<channel>.*)\.tif""", re.VERBOSE)
+example = '10X_T0001_XY01_00001_Z001_CH2.tif'
+print(get_namekeys(example, channeles, image_reg, focused = True))
+test = 'test'
+'''

@@ -12,22 +12,44 @@ from btrack.render import plot_tracks
 import pandas as pd
 from btrack.dataio import export_CSV
 from pathlib import Path
+from PIL import Image
 #import napari
+
+def get_image_dims(input_dir):
+  dimx = []
+  dimy = []
+  for file in Path(input_dir).rglob("*.tif"):
+    im = Image.open(file).convert("L")
+    dimx += [im.size[0]]
+    dimy += [im.size[1]]
+  return dimx, dimy
 
 """
 Uses BTracker to generate h5 files of cell tracks. 
-
-input_csv: path to the file containing CellProfiler-exported data.
-cell_config: path to json with the cell_config model
-output_file: the output h5 file write
-update: either 'EXACT' or 'APPROXIMATE'
-z_filter: z level to filter by
-search: the minimum search distance (default = 100)
-volume: the size of the area being tracked (as a tibble of tibbles)
-step: time step for tracking
+Parameters
+----------
+input_csv: Path
+  The path to the file containing CellProfiler-exported data.
+cell_config: Path
+  The path to json with the cell_config model
+output_file: Path
+  The path to the output h5 file write
+update: str
+  Either 'EXACT' or 'APPROXIMATE' (default 'EXACT')
+z_filter: int
+  The z level to filter by (default = 1)
+search: int
+  The minimum search distance (default = 100)
+volume: Tibble of tibbles of ints
+  The size of the area being tracked
+step: int
+  The time step for tracking
+Returns
+-------
+None
 """
-def btracking(input_csv, cell_config, output_file, update = 'EXACT', 
-  z_filter = 1, search = 100, vol = ((0,3700),(0,2800),(0,4)), step = 1):
+def btracking(input_csv:Path, cell_config:Path, output_file:Path, update:str = 'EXACT', 
+  z_filter:int = 1, search:int = 100, vol = ((0,3700),(0,2800),(0,4)), step:int = 1, log_file = None)->None:
   # creates objects to track
   #objects = Path(input) / "cell_locationsIdentifyPrimaryObjects.csv"
   objects = pd.read_csv(input_csv)
@@ -106,3 +128,5 @@ cell_configs = Path('/Users/ConradOakes/BayesianTracker/models/cell_config.json'
 well = 'XY01'
 btracking(data, cell_configs, save, well)
 """
+#print(get_image_dims(Path("/Users/ConradOakes/CellBaum/output/stitched/XY01")))
+

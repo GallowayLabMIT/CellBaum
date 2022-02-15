@@ -2,16 +2,23 @@ import shutil
 import os
 from pathlib import Path
 import re
+from typing import List
 
 """
 Merges the specified folders of images in the given order
-
-input_dir: Directory containing different dpi folders
-output_dir: Directory to put compiled images in
-dpi_list: dpis to merge, in chronological order
-regexp: the regular expression matching each image name
+Parameters
+----------
+input_dir: Path
+    Directory containing different dpi folders
+output_dir: Path
+    Directory to put compiled images in
+dpi_list: List of strings
+    The dpis to merge, in chronological order
+Return
+------
+None
 """
-def merge_dpi(input_dir, output_dir, dpi_list):
+def merge_dpi(input_dir:Path, output_dir:Path, dpi_list:List[str])->None:
     future_time_to_add = 0
     time_to_add = 0
     input_dir = Path(input_dir)
