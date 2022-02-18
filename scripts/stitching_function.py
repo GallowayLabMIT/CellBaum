@@ -12,7 +12,7 @@ from pathlib import Path
 import contextlib
 import itertools
 import re
-from typing import List, Optional, Pattern
+from typing import List, Literal, Optional, Pattern
 
 
 def java_quote(input_str:str)->str:
@@ -100,8 +100,8 @@ Returns
 An int (1 or 0) designating successful completion of the command line task
 """
 def stitching(fiji_dir:Path, java_dir:Path, image_dir:Path, name_keys:List[str], prefix:List[str], template:int, grid_width:int, grid_height:int,
-              output:Path, z_extent:Optional[List[int]] = None, log_filename:Optional[Path] = None, order:str = "SEQUENTIAL", 
-              scope_path:str = "HORIZONTALCONTINUOUS")->int:
+              output:Path, z_extent:Optional[List[int]] = None, log_filename:Optional[Path] = None, order:Literal['SEQUENTIAL','ROWCOLUMN'] = "SEQUENTIAL", 
+              scope_path:Literal['HORIZONTALCONTINUOUS','HORIZONTALCOMBING','VERTICALCONTINUOUS','VERTICALCOMBING'] = "HORIZONTALCONTINUOUS")->int:
     if z_extent is None:
         z_list = '0'
     else:

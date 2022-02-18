@@ -1,4 +1,5 @@
 #get dependencies
+from config_model import ConfigModel
 from scripts.env_validation import val_env
 from scripts.stitching_function import stitching
 from scripts.stitching_function import get_namekeys
@@ -16,9 +17,10 @@ import re
 import contextlib
 #find required apps
 print(config)
+print(ConfigModel(**config))
 cp_app, fiji_app, java_app = val_env(Path(config["cp_dir"]), Path(config["fiji_dir"]))
 # generate name keys for stitching
-name_keys = get_namekeys(config["example_img_name"], config["Prefix"], config["image_regex"], 
+name_keys = get_namekeys(config["example_image_name"], config["Prefix"], config["image_regex"], 
         focused = config["focus_finding_needed"])
 print(name_keys)
 #generate list of wells
@@ -127,21 +129,26 @@ rule find_objects:
 
 rule btrack:
     input:
-        cp_csv = Path(config["output_dir"]) / 'cell_data' /"{well}"/ 'cell_locationsIdentifyPrimaryObjects.csv'
+        cp_csv = Path(config["output_dir"]) / 'cell_data' /"{well}"/ 'cell_locationsIdentifyPrimaryObjects.csv',
+        stitch_dir = Path(config["output_dir"]) / "stitched" / "{well}"
     params:
         cell_configs = Path(config["cell_config"]),
         update = config["Update_method"],
         search = config["Max_search_radius"],
-        vol = tuple(tuple(config["Volume"][key]) for key in ["x", "y", "z"]),
+        volume = config["Volume"],
         step = config["Step_size"]
     log:
         Path(config["log_dir"]) / "{well}btrack_log.txt"
     output:
         final_data = Path(config["output_dir"]) / "btrack_results"/"{well}"/"tracks.h5"
     run:
+        if params.volume != "auto":
+            vol = tuple(tuple(params.volume[key]) for key in ["x", "y", "z"]),
+        else:
+            dims = get_image_dims(input.stitch_dir)
+            vol = ((0, max(dims[0])), (0, max(dims[1])), (0,2))
         btracking(input.cp_csv, params.cell_configs, output.final_data, 
-            update=params.update, search=params.search, vol=params.vol, step=params.step, log_file = log[0])
-
+            update=params.update, search=params.search, vol=vol, step=params.step, log_file = log[0])
 
 rule h5_add:
     input: 

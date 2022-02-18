@@ -5,6 +5,7 @@ Created on Fri Feb 26 08:31:19 2021
 
 @author: ConradOakes
 """
+from typing import Literal
 import btrack
 from btrack.constants import BayesianUpdates
 from btrack.dataio import localizations_to_objects
@@ -15,7 +16,7 @@ from pathlib import Path
 from PIL import Image
 #import napari
 
-def get_image_dims(input_dir):
+def get_image_dims(input_dir:Path):
   dimx = []
   dimy = []
   for file in Path(input_dir).rglob("*.tif"):
@@ -48,8 +49,9 @@ Returns
 -------
 None
 """
-def btracking(input_csv:Path, cell_config:Path, output_file:Path, update:str = 'EXACT', 
-  z_filter:int = 1, search:int = 100, vol = ((0,3700),(0,2800),(0,4)), step:int = 1, log_file = None)->None:
+def btracking(input_csv:Path, cell_config:Path, output_file:Path, update:Literal['EXACT','APPROXIMATE'], 
+  z_filter:int = 1, search:int = 100, vol:tuple[tuple[int, int],tuple[int, int],tuple[int, int]] = ((0,3700),(0,2800),(0,4)), 
+  step:int = 1, log_file = None)->None:
   # creates objects to track
   #objects = Path(input) / "cell_locationsIdentifyPrimaryObjects.csv"
   objects = pd.read_csv(input_csv)

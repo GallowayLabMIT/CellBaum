@@ -1,4 +1,4 @@
-from ctypes import Union
+from typing import Union, List
 import pandas as pd
 import numpy as np
 import h5py
@@ -22,8 +22,7 @@ Returns
 -------
 None
 """
-def add_to_h5(cp_loc:Path, initial_h5:Path, to_save, z:int = 1)->None:
-    # :Union[list(str), str]
+def add_to_h5(cp_loc:Path, initial_h5:Path, to_save:Union[List[str], str], z:int = 1)->None:
     # opens cp csv
     cp_data = pd.read_csv(Path(cp_loc))
     # gets h5 file and creates copy to create a new h5 file

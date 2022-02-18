@@ -18,17 +18,13 @@ image_regex: """(?P<prefix>.*)_(?P<time>T\d{4})_(?P<well>XY\d{2})_(?P<position>\
 focus_channels: 
  - single channel or list of all channels
 
+example_image_name: string of an image's name
 pre_stitch_correction_needed: false OR true
 stitching:
   grid_width: stitching_tiles_width
   grid_height: stitching_tiles_height
   z_min: minimum_zstack (optional)
   z_max: max_zstack (optional)
-Name_keys:
- - 2021.01.18_10X_time_well_000{pp}_Z{ttt}_CH1.tif
- - 2021.01.18_10X_time_well_000{pp}_Z{ttt}_CH3_threshold.tiff
- - 2021.01.18_10X_time_well_000{pp}_Z{ttt}_CH4.tif
- - 2021.01.18_10X_time_well_000{pp}_Z{ttt}_Overlay.tif
 Prefix: 
  - CH1
  - CH3
@@ -41,7 +37,7 @@ maxsize: maximum_cell_size
 
 Update_method: EXACT or APPROXIMATE
 Max_search_radius: Number
-Volume: 
+Volume: auto or:
   x: 
    - X_min
    - X_max
