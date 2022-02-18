@@ -47,7 +47,7 @@ def get_bestz(image_list:List[Path])->Path:
     best_file = valcomp[max(valcomp.keys())]
     return best_file
 
-def find_focus(image_dir:Path, outputfold:Path, image_regex:Pattern, channels:list[str])->None:
+def find_focus(image_dir:Path, outputfold:Path, image_regex:Pattern, channels:List[str])->None:
     """
     Takes a folder of z-stacked images, finds the most in focus for each position, 
     and then creates a new folder with only the in focus images
