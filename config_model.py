@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Literal, Optional, Union
+from typing import Dict, List, Literal, Optional, Union
 from pydantic import BaseModel, conlist
 
 class ConfigModel(BaseModel):
@@ -22,7 +22,7 @@ class ConfigModel(BaseModel):
     pre_stitch_correction_needed: bool  = False
 
     example_image_name: str
-    stitching: dict[str, int]
+    stitching: Dict[str, int]
     Prefix: List[str]
     Template: int
 
