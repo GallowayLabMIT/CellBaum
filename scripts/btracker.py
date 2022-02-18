@@ -5,7 +5,7 @@ Created on Fri Feb 26 08:31:19 2021
 
 @author: ConradOakes
 """
-from typing import Literal
+from typing import Literal, Tuple
 import btrack
 from btrack.constants import BayesianUpdates
 from btrack.dataio import localizations_to_objects
@@ -50,7 +50,7 @@ Returns
 None
 """
 def btracking(input_csv:Path, cell_config:Path, output_file:Path, update:Literal['EXACT','APPROXIMATE'], 
-  z_filter:int = 1, search:int = 100, vol:tuple[tuple[int, int],tuple[int, int],tuple[int, int]] = ((0,3700),(0,2800),(0,4)), 
+  z_filter:int = 1, search:int = 100, vol:Tuple[Tuple[int, int],Tuple[int, int],Tuple[int, int]] = ((0,3700),(0,2800),(0,4)), 
   step:int = 1, log_file = None)->None:
   # creates objects to track
   #objects = Path(input) / "cell_locationsIdentifyPrimaryObjects.csv"
