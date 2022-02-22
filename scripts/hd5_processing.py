@@ -30,8 +30,11 @@ def add_to_h5(cp_loc:Path, initial_h5:Path, to_save:Union[List[str], str], z:int
     cp_track = Path(os.path.dirname(initial_h5))/'tracks_cp.h5'
     shutil.copy(v_track, cp_track)
     with h5py.File(cp_track, 'a') as cp_track:
-        # filters cp_data by z level
-        cp_data = cp_data.loc[cp_data['Metadata_zstep'] == z]
+        if "Metadata_zstep" in cp_data.columns:
+            # filters cp_data by z level
+            cp_data = cp_data.loc[cp_data['Metadata_zstep'] == z]
+        else:
+            cp_data['Metadata_zstep'] = 1
 
         # gets object data for each of t,x,y,z from the h5 file
         t_array = cp_track['objects']['obj_type_1']['coords'][:,0]

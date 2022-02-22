@@ -103,9 +103,9 @@ def find_focus(image_dir:Path, outputfold:Path, image_regex:Pattern, channels:Li
                     shutil.copy(other_im, outputfold/time/naming)
     # creates a csv with the z values used
     f = open(outputfold/'Znum_used.csv','w')
-    w = csv.DictWriter(f,z_num_used.keys())
+    w = csv.DictWriter(f,z_num_used.values())
     w.writeheader()
-    w.writerow(z_num_used)
+    w.writerow(z_num_used.keys())
     f.close()
 '''
 #given folder of wells
