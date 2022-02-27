@@ -111,13 +111,12 @@ rule cp_process:
     output:
         final = Path(config["pipe_dir"])/"nuclei_masking.cppipe"
     run:
-        with open(Path(config["pipe_dir"])/"nuclei_masking.cppipe.template") as infile, open(Path(config["pipe_loc"])/"nuclei_masking.cppipe", "w") as outfile:
+        with open(Path(config["pipe_dir"])/"nuclei_masking.cppipe.template") as infile, open(Path(config["pipe_dir"])/"nuclei_masking.cppipe", "w") as outfile:
             outfile.write(infile.read().replace("!MINSIZE!", str(config['minsize'])).replace("!MAXSIZE!", str(config['maxsize'])))
 
 rule find_objects:
     input:
-        image_dir = Path(config["output_dir"]) / "stitched" / "{well}"
-    params:
+        image_dir = Path(config["output_dir"]) / "stitched" / "{well}",
         pipeline = Path(config["pipe_dir"]) / "nuclei_masking.cppipe"
     log:
         Path(config["log_dir"]) / "{well}find_objects_log.txt"
@@ -125,7 +124,7 @@ rule find_objects:
         object_dir = directory(Path(config["output_dir"]) / 'cell_data'/"{well}"),
         out_csv = Path(config["output_dir"]) / 'cell_data'/'{well}' / 'cell_locationsIdentifyPrimaryObjects.csv'
     run:
-        call_cp(cp_app, params.pipeline, output.object_dir, input.image_dir, log[0])
+        call_cp(cp_app, input.pipeline, output.object_dir, input.image_dir, log[0])
 
 rule btrack:
     input:
