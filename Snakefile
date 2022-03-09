@@ -9,6 +9,7 @@ from scripts.call_cp import call_cp
 from scripts.hd5_processing import add_to_h5
 from scripts.dpi_merge import merge_dpi
 from scripts.focus_point import find_focus
+from scripts.grayscaling_function import grayscale_folder
 configfile: "cellbaum_config.yml"
 from pathlib import Path
 import os
@@ -35,11 +36,20 @@ for check in well_path.iterdir():
         w = os.path.basename(os.path.normpath(check))
         WELL.append(w)
         
-last_dir = Path(config["data_dir"])
+last_dir = Path(config["output_dir"])/"grayscale"
 
 rule all:
     input: 
         expand(Path(config["output_dir"]) / "btrack_results"/"{well}"/"tracks_cp.h5", well = WELL)
+
+rule gray_images:
+    input:
+        image_dir = Path(config["data_dir"])
+    output:
+        grayed_dir = directory(Path(config["output_dir"])/"grayscale"),
+            individual_folders = directory(expand(Path(config["output_dir"])/"grayscale"/"{well}", well = WELL))
+    run:
+        grayscale_folder(input.image_dir, output.grayed_dir)
 
 if config["folder_merging_needed"]:
     rule merge_dpi:

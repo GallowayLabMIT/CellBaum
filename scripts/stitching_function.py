@@ -252,25 +252,22 @@ def stitching(fiji_dir:Path, java_dir:Path, image_dir:Path, name_keys:List[str],
         os.chdir(old_dir)
         return(run_result.returncode)
 
-"""
+'''
+#2021.01.18_10X_time_well_000{pp}_CH1.tif
+channeles = ["CH2", "CH3", "CH4", "Overlay"]
+image_reg = re.compile(r"""(?P<prefix>.*)_(?P<time>T\d{4})_(?P<well>XY\d{2})_(?P<position>\d{5})_Z(?P<stack>.{3})_(?P<channel>.*)\.tif""", re.VERBOSE)
+example = '10X_T0001_XY01_00001_Z001_CH2.tif'
+name_key = get_namekeys(example, channeles, image_reg, focused = True)
+print(name_key)
+
 fiji_loc = Path('/Applications/Fiji.app')
 java_loc = Path('/Applications/Fiji.app/java/macosx/adoptopenjdk-8.jdk/jre/Contents/Home/bin/java')
-data_dir = Path('/Users/ConradOakes/CellBaum/output/focused/XY01')
-name_key = ["2021.01.18_10X_time_XY01_000{pp}_CH1.tif", "2021.01.18_10X_time_XY01_000{pp}_CH3.tif",
-             "2021.01.18_10X_time_XY01_000{pp}_CH4.tif", "2021.01.18_10X_time_XY01_000{pp}_Overlay.tif"]
-prefixes = ["CH1", "CH3", "CH4", "Overlay"]
+data_dir = Path('/Users/ConradOakes/CellBaum/testing/XY01')
+prefixes = ["CH2", "CH3", "CH4", "Overlay"]
 main_chan = 1
 output_dir = Path("/Users/ConradOakes/CellBaum/output/stitched/XY01")
 log_dir = "/Users/ConradOakes/CellBaum/snakemake_logs/XY01stitching_log.txt"
 
 stitching(fiji_dir = fiji_loc, java_dir = java_loc, image_dir = data_dir, name_keys = name_key, prefix = prefixes, template = main_chan,
-              grid_width = 5, grid_height = 5, output = output_dir, log_filename=log_dir)
-"""
-'''
-#2021.01.18_10X_time_well_000{pp}_CH1.tif
-channeles = ["CH1", "CH3", "CH4", "Overlay"]
-image_reg = re.compile(r"""(?P<prefix>.*)_(?P<time>T\d{4})_(?P<well>XY\d{2})_(?P<position>\d{5})_Z(?P<stack>.{3})_(?P<channel>.*)\.tif""", re.VERBOSE)
-example = '10X_T0001_XY01_00001_Z001_CH2.tif'
-print(get_namekeys(example, channeles, image_reg, focused = True))
-test = 'test'
+              grid_width = 3, grid_height = 2, output = output_dir, log_filename=log_dir)
 '''

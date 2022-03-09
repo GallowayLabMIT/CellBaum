@@ -1,0 +1,35 @@
+---
+data_dir: /home/gridsan/groups/galloway/data/2022.02.07-timelapse/all_wells
+cp_dir: /home/gridsan/groups/galloway/cluster_infrastructure/conda_envs/cellbaum/bin/
+fiji_dir: /home/gridsan/groups/galloway/bin/Fiji.app
+pipe_dir: /home/gridsan/groups/galloway/CellBaum/cp_files
+output_dir: /home/gridsan/groups/galloway/data/2022.02.07-timelapse/results
+log_dir: /home/gridsan/groups/galloway/data/2022.02.07-timelapse/results/Logs
+cell_config: /home/gridsan/groups/galloway/CellBaum/models/cell_config.json
+
+folder_merging_needed: False
+focus_finding_needed: True
+image_regex: (?P<prefix>.*)_(?P<time>T\d{4})_(?P<well>XY\d{2})_(?P<position>\d{5})_Z(?P<stack>\d{3})_(?P<channel>.*)\.tif
+focus_channels:
+ - CH3
+
+example_image_name: 10X_T0001_XY01_00001_Z001_CH2.tif
+
+stitching: 
+  grid_width: 3
+  grid_height: 2
+minsize: 15
+maxsize: 40
+pre_stitch_correction_needed: false
+
+Prefix: 
+ - CH2
+ - CH3
+ - CH4
+ - Overlay
+Template: 1
+Update_method: EXACT
+Max_search_radius: 50
+Volume: 'auto'
+Step_size: 1
+CP_Data_Keep: 'all'
