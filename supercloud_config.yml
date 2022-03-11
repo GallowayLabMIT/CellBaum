@@ -7,6 +7,13 @@ output_dir: /home/gridsan/groups/galloway/data/2022.02.07-timelapse/results
 log_dir: /home/gridsan/groups/galloway/data/2022.02.07-timelapse/results/Logs
 cell_config: /home/gridsan/groups/galloway/CellBaum/models/cell_config.json
 
+gray_channels:
+  CH1: max
+  CH2: max
+  CH3: max
+  CH4: max
+  Overlay: avg
+
 folder_merging_needed: False
 focus_finding_needed: True
 image_regex: (?P<prefix>.*)_(?P<time>T\d{4})_(?P<well>XY\d{2})_(?P<position>\d{5})_Z(?P<stack>\d{3})_(?P<channel>.*)\.tif

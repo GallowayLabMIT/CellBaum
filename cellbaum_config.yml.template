@@ -13,6 +13,9 @@ folders_to_merge:
   - name1
   - name2
 
+gray_channels:
+  for all channels: "max", "avg", or list of 3 ratios
+
 focus_finding_needed: false or true
 image_regex: """(?P<prefix>.*)_(?P<time>T\d{4})_(?P<well>XY\d{2})_(?P<position>\d{5})_Z(?P<stack>\d{3})_(?P<channel>.*)\.tif"""
 focus_channels: 
