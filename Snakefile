@@ -99,7 +99,7 @@ if config["pre_stitch_correction_needed"]:
             call_cp(cp_app, params.pipeline, output.image_dir, input.image_dir, log[0])
     last_dir = Path(config["output_dir"])/"corrected"
 
-    if config["to_stitch"]:
+if config["to_stitch"]:
     rule stitching:
         input:
             main_dir = last_dir/"{well}"
