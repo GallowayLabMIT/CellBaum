@@ -2,9 +2,17 @@
 .DS_Store
 snakemake_logs
 cellbaum_config.yml
+*config*.yml
 .snakemake
 *output
 cenv
+testing
+testoutput
+testgray
+scratchwork.py
+home
+.vscode
+*mapping.yml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

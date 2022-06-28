@@ -21,7 +21,7 @@ def get_fval(image_file:Path)->int:
     -------
     An integer that is the result of the correlation"""
     # opens image as array
-    im = Image.open(image_file).convert("L")
+    im = Image.open(image_file)
     im_array = np.array(im)
     # runs the correlation
     weighting = np.array([[0,0,0], [0, -1, 1], [0,0,0]])

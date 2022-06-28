@@ -99,23 +99,25 @@ if config["pre_stitch_correction_needed"]:
             call_cp(cp_app, params.pipeline, output.image_dir, input.image_dir, log[0])
     last_dir = Path(config["output_dir"])/"corrected"
 
-rule stitching:
-    input:
-        main_dir = last_dir/"{well}"
-    params:
-        prefix = config["Prefix"],
-        template = config["Template"],
-        grid_width = config["stitching"]["grid_width"],
-        grid_height = config["stitching"]["grid_height"],
-        z_extent = None if 'z_min' not in config['stitching'] else (config['stitching']['z_min'], config['stitching']['z_max'])
-    log:
-        Path(config["log_dir"]) / "{well}stitching_log.txt"
-    output:
-        stitch_dir = directory(Path(config["output_dir"]) / "stitched"/"{well}")
-    run:
-        stitching(fiji_app, java_app, input.main_dir, name_keys,
-                   params.prefix, params.template, params.grid_width, params.grid_height, 
-                  output.stitch_dir, params.z_extent, log[0])
+    if config["to_stitch"]:
+    rule stitching:
+        input:
+            main_dir = last_dir/"{well}"
+        params:
+            prefix = config["Prefix"],
+            template = config["Template"],
+            grid_width = config["stitching"]["grid_width"],
+            grid_height = config["stitching"]["grid_height"],
+            z_extent = None if 'z_min' not in config['stitching'] else (config['stitching']['z_min'], config['stitching']['z_max'])
+        log:
+            Path(config["log_dir"]) / "{well}stitching_log.txt"
+        output:
+            stitch_dir = directory(Path(config["output_dir"]) / "stitched"/"{well}")
+        run:
+            stitching(fiji_app, java_app, input.main_dir, name_keys,
+                    params.prefix, params.template, params.grid_width, params.grid_height, 
+                    output.stitch_dir, params.z_extent, log[0])
+    last_dir = Path(config["output_dir"])/"stitched"
 
 rule cp_process:
     input:
@@ -128,7 +130,7 @@ rule cp_process:
 
 rule find_objects:
     input:
-        image_dir = Path(config["output_dir"]) / "stitched" / "{well}",
+        image_dir = last_dir/"{well}",
         pipeline = Path(config["pipe_dir"]) / "nuclei_masking.cppipe"
     log:
         Path(config["log_dir"]) / "{well}find_objects_log.txt"
@@ -141,7 +143,7 @@ rule find_objects:
 rule btrack:
     input:
         cp_csv = Path(config["output_dir"]) / 'cell_data' /"{well}"/ 'cell_locationsIdentifyPrimaryObjects.csv',
-        stitch_dir = Path(config["output_dir"]) / "stitched" / "{well}"
+        stitch_dir = last_dir/ "{well}"
     params:
         cell_configs = Path(config["cell_config"]),
         update = config["Update_method"],
