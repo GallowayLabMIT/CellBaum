@@ -24,23 +24,19 @@ def image_conversion(image_path:Path, output_path:Path, conversion:Union[List[fl
     im = Image.open(image_path)
     im_array = np.array(im)
     if np.ndim(im_array) == 2:
-        im.save(str(output_path/image_path.name))
+        correct_im = im_array
     else:
         if conversion == 'max':
             correct_im = np.amax(im_array, axis = 2)
-            final_im = Image.fromarray(correct_im)
-            final_im.save(str(output_path/image_path.name))
         elif conversion == 'avg':
             correct_im = np.mean(im_array, axis = 2)
-            final_im = Image.fromarray(correct_im)
-            final_im.save(str(output_path/image_path.name))
         else:
             Rval = im_array[:,:,0]*conversion[0]
             Gval = im_array[:,:,1]*conversion[1]
             Bval = im_array[:,:,2]*conversion[2]
             correct_im = Rval+ Gval+ Bval
-            final_im = Image.fromarray(correct_im)
-            final_im.save(str(output_path/image_path.name))
+    final_im = Image.fromarray(correct_im.astype('u2'))
+    final_im.save(str(output_path/image_path.name))
 
 
 def grayscale_folder(image_dir:Path, outputfold:Path, regex:Pattern, conversion:Dict)->None:
@@ -72,9 +68,9 @@ def grayscale_folder(image_dir:Path, outputfold:Path, regex:Pattern, conversion:
             image_conversion(im_name, outputfold/time, conversion[chan])
 
 '''
-output = Path("/Users/ConradOakes/CellBaum/testgray/XY01")
-bigfolder = Path("/Users/ConradOakes/CellBaum/testing/XY01")
-image_reg = re.compile(r"""(?P<prefix>.*)_(?P<time>T\d{4})_(?P<well>XY\d{2})_(?P<position>\d{5})_(?P<channel>.*)\.tif""", re.VERBOSE)
-conversion_dict = {"CH1": 'avg', "CH2": 'max', "CH3": 'avg', "CH4": 'max', "Overlay": [1/4, 1/4, 2/4]}
+output = Path("/Users/ConradOakes/CellBaum/testgrayresult/XY11")
+bigfolder = Path("/Users/ConradOakes/CellBaum/testgray/XY11")
+image_reg = re.compile(r"""(?P<prefix>.*)_(?P<time>T\d{4})_(?P<well>XY\d{2})_Z(?P<stack>\d{3})_(?P<channel>.*)\.tif""", re.VERBOSE)
+conversion_dict = {"CH1": [0, 0, 1], "CH2": [0, 1, 0], "CH3": [0, 0, 1], "CH4": 'max', "Overlay": 'avg'}
 grayscale_folder(bigfolder, output, image_reg, conversion_dict)
 '''

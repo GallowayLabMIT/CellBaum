@@ -81,7 +81,7 @@ def find_focus(image_dir:Path, outputfold:Path, image_regex:Pattern, channels:Li
                 # get the best focus point
                 best_z = get_bestz(zcheck)
                 z_num = re.match(image_regex, best_z.name).group('stack')
-                pos_num = re.match(image_regex, best_z.name).group('position')
+                #pos_num = re.match(image_regex, best_z.name).group('position')
                 z_num_used[best_z.name] = z_num
                 # use the focus point to find the other images with that z value and save them
                 for other_im in Path(image_dir/time).glob("*.tif"):
@@ -94,7 +94,7 @@ def find_focus(image_dir:Path, outputfold:Path, image_regex:Pattern, channels:Li
             # get the best focus point
             best_z = get_bestz(zcheck)
             z_num = re.match(image_regex, best_z.name).group('stack')
-            pos_num = re.match(image_regex, best_z.name).group('position')
+            #pos_num = re.match(image_regex, best_z.name).group('position')
             z_num_used[best_z.name] = z_num
             # use the focus point to find the other images with that z value and save them
             for other_im in Path(image_dir/time).glob("*.tif"):
@@ -103,9 +103,9 @@ def find_focus(image_dir:Path, outputfold:Path, image_regex:Pattern, channels:Li
                     shutil.copy(other_im, outputfold/time/naming)
     # creates a csv with the z values used
     f = open(outputfold/'Znum_used.csv','w')
-    w = csv.DictWriter(f,z_num_used.values())
+    w = csv.DictWriter(f,z_num_used.keys())
     w.writeheader()
-    w.writerow(z_num_used.keys())
+    w.writerow(z_num_used)
     f.close()
 '''
 #given folder of wells
