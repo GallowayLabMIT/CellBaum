@@ -55,6 +55,9 @@ def btracking(input_csv:Path, cell_config:Path, output_file:Path, update:Literal
   # creates objects to track
   #objects = Path(input) / "cell_locationsIdentifyPrimaryObjects.csv"
   objects = pd.read_csv(input_csv)
+  if len(objects) < 1:
+    print("WARNING: No objects found")
+    return
   if 'Metadata_zstep' not in objects.columns:
     objects['Metadata_zstep'] = 1
   formatted = objects.rename(columns={'Metadata_time' : 't', 'Location_Center_X' : 'x', 
@@ -124,11 +127,11 @@ def btracking(input_csv:Path, cell_config:Path, output_file:Path, update:Literal
     tracker.export(str(output_file), obj_type='obj_type_1')
   
 """
-data = Path('/Users/ConradOakes/CellBaum/output/XY01cell_data/cell_locationsIdentifyPrimaryObjects.csv')
-save = Path("/Users/ConradOakes/CellBaum/output/btrack_results/XY01tracks.h5")
+data = Path('/Users/ConradOakes/degron_results/2022.06.24_degrons/cell_data/XY04/cell_locationsIdentifyPrimaryObjects.csv')
+save = Path("/Users/ConradOakes/degron_results/2022.06.24_degrons/btrack_results/XY04tracks.h5")
 cell_configs = Path('/Users/ConradOakes/BayesianTracker/models/cell_config.json')
-well = 'XY01'
+well = 'XY04'
 btracking(data, cell_configs, save, well)
-"""
-#print(get_image_dims(Path("/Users/ConradOakes/CellBaum/output/stitched/XY01")))
 
+#print(get_image_dims(Path("/Users/ConradOakes/CellBaum/output/stitched/XY01")))
+"""
