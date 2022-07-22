@@ -14,6 +14,7 @@ import pandas as pd
 from btrack.dataio import export_CSV
 from pathlib import Path
 from PIL import Image
+import h5py
 #import napari
 
 def get_image_dims(input_dir:Path):
@@ -57,6 +58,8 @@ def btracking(input_csv:Path, cell_config:Path, output_file:Path, update:Literal
   objects = pd.read_csv(input_csv)
   if len(objects) < 1:
     print("WARNING: No objects found")
+    with h5py.File(output_file, "w") as f:
+      f.create_dataset("empty", (1,), dtype='i')
     return
   if 'Metadata_zstep' not in objects.columns:
     objects['Metadata_zstep'] = 1

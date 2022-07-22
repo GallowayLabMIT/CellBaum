@@ -29,6 +29,9 @@ def add_to_h5(cp_loc:Path, initial_h5:Path, to_save:Union[List[str], str], z:int
     v_track = Path(initial_h5)
     cp_track = Path(os.path.dirname(initial_h5))/'tracks_cp.h5'
     shutil.copy(v_track, cp_track)
+    if len(cp_data) < 1:
+        print("WARNING: No objects found")
+        return
     with h5py.File(cp_track, 'a') as cp_track:
         if "Metadata_zstep" in cp_data.columns:
             # filters cp_data by z level
@@ -98,8 +101,8 @@ def add_to_h5(cp_loc:Path, initial_h5:Path, to_save:Union[List[str], str], z:int
 
 
 """
-output = Path("/Users/ConradOakes/CellBaum/output/cell_data/XY01/cell_locationsIdentifyPrimaryObjects.csv")
-h5 = Path("/Users/ConradOakes/CellBaum/output/btrack_results/XY01/old_tracks.h5")
+output = Path("/Users/ConradOakes/degron_results/2022.06.24_degrons/cell_data/XY04/cell_locationsIdentifyPrimaryObjects.csv")
+h5 = Path("/Users/ConradOakes/degron_results/2022.06.24_degrons/btrack_results/XY04tracks.h5")
 save = 'all'
 add_to_h5(output, h5, save)
 """
