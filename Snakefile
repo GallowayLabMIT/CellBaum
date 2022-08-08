@@ -47,11 +47,13 @@ rule gray_images:
         image_dir = Path(config["data_dir"])/"{well}"
     output:
         grayed_dir = directory(Path(config["output_dir"])/"grayscale"/"{well}")
+    log:
+        Path(config["log_dir"]) / "{well}grayscale_log.txt"
     params:
         regex = re.compile(config["image_regex"], re.VERBOSE),
         channels = config["gray_channels"]
     run:
-        grayscale_folder(input.image_dir, output.grayed_dir, params.regex, params.channels)
+        grayscale_folder(input.image_dir, output.grayed_dir, params.regex, params.channels, log[0])
 
 if config["folder_merging_needed"]:
     rule merge_dpi:
