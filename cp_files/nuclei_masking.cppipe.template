@@ -2,7 +2,7 @@ CellProfiler Pipeline: http://www.cellprofiler.org
 Version:5
 DateRevision:421
 GitHash:
-ModuleCount:15
+ModuleCount:17
 HasImagePlaneDetails:False
 
 Images:[module_num:1|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['To begin creating your project, use the Images module to compile a list of files and/or folders that you want to analyze. You can also specify a set of rules to include only the desired files in your selected folders.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
@@ -186,7 +186,7 @@ ExportToSpreadsheet:[module_num:11|svn_version:'Unknown'|variable_revision_numbe
     Select the image to use as the identifier:None
     Select the metadata to use as the identifier:None
     Export all measurement types?:Yes
-    Press button to select measurements:IdentifyPrimaryObjects|Location_MaxIntensity_Z_Blue,IdentifyPrimaryObjects|Location_MaxIntensity_Z_Red,IdentifyPrimaryObjects|Location_MaxIntensity_Y_Red,IdentifyPrimaryObjects|Location_MaxIntensity_Y_Blue,IdentifyPrimaryObjects|Location_MaxIntensity_X_Blue,IdentifyPrimaryObjects|Location_MaxIntensity_X_Red,IdentifyPrimaryObjects|Location_CenterMassIntensity_Y_Blue,IdentifyPrimaryObjects|Location_CenterMassIntensity_Y_Red,IdentifyPrimaryObjects|Location_CenterMassIntensity_Z_Blue,IdentifyPrimaryObjects|Location_CenterMassIntensity_Z_Red,IdentifyPrimaryObjects|Location_CenterMassIntensity_X_Red,IdentifyPrimaryObjects|Location_CenterMassIntensity_X_Blue,IdentifyPrimaryObjects|Location_Center_Z,IdentifyPrimaryObjects|Location_Center_X,IdentifyPrimaryObjects|Location_Center_Y,IdentifyPrimaryObjects|Intensity_StdIntensityEdge_Blue,IdentifyPrimaryObjects|Intensity_StdIntensityEdge_Red,IdentifyPrimaryObjects|Intensity_MaxIntensity_Blue,IdentifyPrimaryObjects|Intensity_MaxIntensity_Red,IdentifyPrimaryObjects|Intensity_IntegratedIntensityEdge_Blue,IdentifyPrimaryObjects|Intensity_IntegratedIntensityEdge_Red,IdentifyPrimaryObjects|Intensity_IntegratedIntensity_Red,IdentifyPrimaryObjects|Intensity_IntegratedIntensity_Blue,IdentifyPrimaryObjects|Intensity_MedianIntensity_Blue,IdentifyPrimaryObjects|Intensity_MedianIntensity_Red,IdentifyPrimaryObjects|Intensity_MADIntensity_Blue,IdentifyPrimaryObjects|Intensity_MADIntensity_Red,IdentifyPrimaryObjects|Intensity_MeanIntensity_Red,IdentifyPrimaryObjects|Intensity_MeanIntensity_Blue,IdentifyPrimaryObjects|Intensity_MeanIntensityEdge_Red,IdentifyPrimaryObjects|Intensity_MeanIntensityEdge_Blue,IdentifyPrimaryObjects|Intensity_StdIntensity_Red,IdentifyPrimaryObjects|Intensity_StdIntensity_Blue,IdentifyPrimaryObjects|Intensity_MinIntensityEdge_Red,IdentifyPrimaryObjects|Intensity_MinIntensityEdge_Blue,IdentifyPrimaryObjects|Intensity_LowerQuartileIntensity_Red,IdentifyPrimaryObjects|Intensity_LowerQuartileIntensity_Blue,IdentifyPrimaryObjects|Intensity_UpperQuartileIntensity_Blue,IdentifyPrimaryObjects|Intensity_UpperQuartileIntensity_Red,IdentifyPrimaryObjects|Intensity_MassDisplacement_Blue,IdentifyPrimaryObjects|Intensity_MassDisplacement_Red,IdentifyPrimaryObjects|Intensity_MaxIntensityEdge_Red,IdentifyPrimaryObjects|Intensity_MaxIntensityEdge_Blue,IdentifyPrimaryObjects|Intensity_MinIntensity_Blue,IdentifyPrimaryObjects|Intensity_MinIntensity_Red,IdentifyPrimaryObjects|AreaShape_Perimeter,IdentifyPrimaryObjects|AreaShape_MinFeretDiameter,IdentifyPrimaryObjects|AreaShape_MeanRadius,IdentifyPrimaryObjects|AreaShape_MaxFeretDiameter,IdentifyPrimaryObjects|AreaShape_Compactness,IdentifyPrimaryObjects|AreaShape_MedianRadius,IdentifyPrimaryObjects|AreaShape_Orientation,IdentifyPrimaryObjects|AreaShape_BoundingBoxMaximum_X,IdentifyPrimaryObjects|AreaShape_BoundingBoxMaximum_Y,IdentifyPrimaryObjects|AreaShape_EquivalentDiameter,IdentifyPrimaryObjects|AreaShape_BoundingBoxArea,IdentifyPrimaryObjects|AreaShape_BoundingBoxMinimum_X,IdentifyPrimaryObjects|AreaShape_BoundingBoxMinimum_Y,IdentifyPrimaryObjects|AreaShape_MaximumRadius,IdentifyPrimaryObjects|AreaShape_EulerNumber,IdentifyPrimaryObjects|AreaShape_Solidity,IdentifyPrimaryObjects|AreaShape_Extent,IdentifyPrimaryObjects|AreaShape_Eccentricity,IdentifyPrimaryObjects|AreaShape_Center_X,IdentifyPrimaryObjects|AreaShape_Center_Y,IdentifyPrimaryObjects|AreaShape_MinorAxisLength,IdentifyPrimaryObjects|AreaShape_FormFactor,IdentifyPrimaryObjects|AreaShape_MajorAxisLength,IdentifyPrimaryObjects|AreaShape_Area,IdentifyPrimaryObjects|Number_Object_Number
+    Press button to select measurements:IdentifyPrimaryObjects|AreaShape_Eccentricity,IdentifyPrimaryObjects|AreaShape_BoundingBoxMinimum_X,IdentifyPrimaryObjects|AreaShape_BoundingBoxMinimum_Y,IdentifyPrimaryObjects|AreaShape_MaximumRadius,IdentifyPrimaryObjects|AreaShape_MajorAxisLength,IdentifyPrimaryObjects|AreaShape_BoundingBoxMaximum_Y,IdentifyPrimaryObjects|AreaShape_BoundingBoxMaximum_X,IdentifyPrimaryObjects|AreaShape_Extent,IdentifyPrimaryObjects|AreaShape_Orientation,IdentifyPrimaryObjects|AreaShape_MeanRadius,IdentifyPrimaryObjects|AreaShape_EulerNumber,IdentifyPrimaryObjects|AreaShape_Perimeter,IdentifyPrimaryObjects|AreaShape_Center_Y,IdentifyPrimaryObjects|AreaShape_Center_X,IdentifyPrimaryObjects|AreaShape_MinorAxisLength,IdentifyPrimaryObjects|AreaShape_MedianRadius,IdentifyPrimaryObjects|AreaShape_Area,IdentifyPrimaryObjects|AreaShape_MinFeretDiameter,IdentifyPrimaryObjects|AreaShape_MaxFeretDiameter,IdentifyPrimaryObjects|AreaShape_BoundingBoxArea,IdentifyPrimaryObjects|AreaShape_EquivalentDiameter,IdentifyPrimaryObjects|AreaShape_Compactness,IdentifyPrimaryObjects|AreaShape_FormFactor,IdentifyPrimaryObjects|AreaShape_Solidity,IdentifyPrimaryObjects|Intensity_LowerQuartileIntensity_CorrBlue,IdentifyPrimaryObjects|Intensity_LowerQuartileIntensity_CorrRed,IdentifyPrimaryObjects|Intensity_IntegratedIntensityEdge_CorrRed,IdentifyPrimaryObjects|Intensity_IntegratedIntensityEdge_CorrBlue,IdentifyPrimaryObjects|Intensity_MaxIntensity_CorrRed,IdentifyPrimaryObjects|Intensity_MaxIntensity_CorrBlue,IdentifyPrimaryObjects|Intensity_MeanIntensityEdge_CorrRed,IdentifyPrimaryObjects|Intensity_MeanIntensityEdge_CorrBlue,IdentifyPrimaryObjects|Intensity_StdIntensity_CorrBlue,IdentifyPrimaryObjects|Intensity_StdIntensity_CorrRed,IdentifyPrimaryObjects|Intensity_MinIntensityEdge_CorrBlue,IdentifyPrimaryObjects|Intensity_MinIntensityEdge_CorrRed,IdentifyPrimaryObjects|Intensity_StdIntensityEdge_CorrBlue,IdentifyPrimaryObjects|Intensity_StdIntensityEdge_CorrRed,IdentifyPrimaryObjects|Intensity_UpperQuartileIntensity_CorrRed,IdentifyPrimaryObjects|Intensity_UpperQuartileIntensity_CorrBlue,IdentifyPrimaryObjects|Intensity_IntegratedIntensity_CorrBlue,IdentifyPrimaryObjects|Intensity_IntegratedIntensity_CorrRed,IdentifyPrimaryObjects|Intensity_MADIntensity_CorrRed,IdentifyPrimaryObjects|Intensity_MADIntensity_CorrBlue,IdentifyPrimaryObjects|Intensity_MaxIntensityEdge_CorrBlue,IdentifyPrimaryObjects|Intensity_MaxIntensityEdge_CorrRed,IdentifyPrimaryObjects|Intensity_MedianIntensity_CorrRed,IdentifyPrimaryObjects|Intensity_MedianIntensity_CorrBlue,IdentifyPrimaryObjects|Intensity_MassDisplacement_CorrRed,IdentifyPrimaryObjects|Intensity_MassDisplacement_CorrBlue,IdentifyPrimaryObjects|Intensity_MeanIntensity_CorrRed,IdentifyPrimaryObjects|Intensity_MeanIntensity_CorrBlue,IdentifyPrimaryObjects|Intensity_MinIntensity_CorrRed,IdentifyPrimaryObjects|Intensity_MinIntensity_CorrBlue,IdentifyPrimaryObjects|Number_Object_Number,IdentifyPrimaryObjects|Location_Center_Z,IdentifyPrimaryObjects|Location_Center_X,IdentifyPrimaryObjects|Location_Center_Y
     Representation of Nan/Inf:NaN
     Add a prefix to file names?:Yes
     Filename prefix:cell_locations
@@ -213,7 +213,7 @@ SaveImages:[module_num:13|svn_version:'Unknown'|variable_revision_number:16|show
     Text to append to the image name:_Objects
     Saved file format:tiff
     Output file location:Default Output Folder|
-    Image bit depth:8-bit integer
+    Image bit depth:16-bit integer
     Overwrite existing files without warning?:No
     When to save:Every cycle
     Record the file and path information to the saved image?:Yes
@@ -224,16 +224,16 @@ SaveImages:[module_num:13|svn_version:'Unknown'|variable_revision_number:16|show
 
 SaveImages:[module_num:14|svn_version:'Unknown'|variable_revision_number:16|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the type of image to save:Image
-    Select the image to save:CorrBlue
+    Select the image to save:IllumBlue
     Select method for constructing file names:From image filename
     Select image name for file prefix:Blue
     Enter single file name:_Mask
     Number of digits:4
     Append a suffix to the image file name?:Yes
-    Text to append to the image name:_corr
+    Text to append to the image name:_illumBlue
     Saved file format:tiff
     Output file location:Default Output Folder|
-    Image bit depth:8-bit integer
+    Image bit depth:16-bit integer
     Overwrite existing files without warning?:No
     When to save:Every cycle
     Record the file and path information to the saved image?:Yes
@@ -244,6 +244,46 @@ SaveImages:[module_num:14|svn_version:'Unknown'|variable_revision_number:16|show
 
 SaveImages:[module_num:15|svn_version:'Unknown'|variable_revision_number:16|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the type of image to save:Image
+    Select the image to save:IllumBlue
+    Select method for constructing file names:From image filename
+    Select image name for file prefix:Red
+    Enter single file name:_Mask
+    Number of digits:4
+    Append a suffix to the image file name?:Yes
+    Text to append to the image name:_illumRed
+    Saved file format:tiff
+    Output file location:Default Output Folder|
+    Image bit depth:16-bit integer
+    Overwrite existing files without warning?:No
+    When to save:Every cycle
+    Record the file and path information to the saved image?:Yes
+    Create subfolders in the output folder?:No
+    Base image folder:Elsewhere...|
+    How to save the series:T (Time)
+    Save with lossless compression?:No
+
+SaveImages:[module_num:16|svn_version:'Unknown'|variable_revision_number:16|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+    Select the type of image to save:Image
+    Select the image to save:CorrBlue
+    Select method for constructing file names:From image filename
+    Select image name for file prefix:Blue
+    Enter single file name:_Mask
+    Number of digits:4
+    Append a suffix to the image file name?:Yes
+    Text to append to the image name:_corr
+    Saved file format:tiff
+    Output file location:Default Output Folder|
+    Image bit depth:32-bit floating point
+    Overwrite existing files without warning?:No
+    When to save:Every cycle
+    Record the file and path information to the saved image?:Yes
+    Create subfolders in the output folder?:No
+    Base image folder:Elsewhere...|
+    How to save the series:T (Time)
+    Save with lossless compression?:No
+
+SaveImages:[module_num:17|svn_version:'Unknown'|variable_revision_number:16|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+    Select the type of image to save:Image
     Select the image to save:CorrRed
     Select method for constructing file names:From image filename
     Select image name for file prefix:Red
@@ -253,7 +293,7 @@ SaveImages:[module_num:15|svn_version:'Unknown'|variable_revision_number:16|show
     Text to append to the image name:_corr
     Saved file format:tiff
     Output file location:Default Output Folder|
-    Image bit depth:8-bit integer
+    Image bit depth:32-bit floating point
     Overwrite existing files without warning?:No
     When to save:Every cycle
     Record the file and path information to the saved image?:Yes
