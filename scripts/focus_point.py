@@ -22,12 +22,14 @@ def get_fval(image_file:Path)->int:
     An integer that is the result of the correlation"""
     # opens image as array
     im = Image.open(image_file)
-    im_array = np.array(im)
+    im_array = np.array(im).astype(np.float64)
     # runs the correlation
-    weighting = np.array([[0,0,0], [0, -1, 1], [0,0,0]])
-    corr_array = scipy.ndimage.correlate(im_array, weighting)
+    sobelx = np.array([[-1, 0, 1],[-2, 0, 2],[-1,0,1]])
+    sobely = np.array([[1,2,1],[0,0,0],[-1,-2,-1]])
+    applied_sobelx = scipy.ndimage.correlate(im_array, sobelx)
+    applied_sobely = scipy.ndimage.correlate(im_array, sobely)
     # sums the squared values
-    val = np.sum(np.square(corr_array))
+    val = np.sum(np.sqrt(applied_sobelx**2+applied_sobely**2))
     return(val)
 
 def get_bestz(image_list:List[Path])->Path:

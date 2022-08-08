@@ -25,17 +25,20 @@ def image_conversion(image_path:Path, output_path:Path, conversion:Union[List[fl
     im_array = np.array(im)
     if np.ndim(im_array) == 2:
         correct_im = im_array
+        final_im = Image.fromarray((correct_im).astype('u2'))
     else:
         if conversion == 'max':
             correct_im = np.amax(im_array, axis = 2)
+            final_im = Image.fromarray((correct_im))
         elif conversion == 'avg':
             correct_im = np.mean(im_array, axis = 2)
+            final_im = Image.fromarray((correct_im*255).astype('u2'))
         else:
             Rval = im_array[:,:,0]*conversion[0]
             Gval = im_array[:,:,1]*conversion[1]
             Bval = im_array[:,:,2]*conversion[2]
             correct_im = Rval+ Gval+ Bval
-    final_im = Image.fromarray(correct_im.astype('u2'))
+            final_im = Image.fromarray((correct_im))
     final_im.save(str(output_path/image_path.name))
 
 
