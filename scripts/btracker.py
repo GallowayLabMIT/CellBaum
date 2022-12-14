@@ -5,7 +5,7 @@ Created on Fri Feb 26 08:31:19 2021
 
 @author: ConradOakes
 """
-from typing import Literal, Tuple
+from typing import Literal, Optional, Tuple
 import btrack
 from btrack.constants import BayesianUpdates
 from btrack.dataio import localizations_to_objects
@@ -46,13 +46,16 @@ volume: Tibble of tibbles of ints
   The size of the area being tracked
 step: int
   The time step for tracking
+time_interval: optional (int, int)
+  Specifies the reduced time range to operate on
+  Interval is specified as (min,max) including end points
 Returns
 -------
 None
 """
 def btracking(input_csv:Path, cell_config:Path, output_file:Path, update:Literal['EXACT','APPROXIMATE'], 
   z_filter:int = 1, search:int = 100, vol:Tuple[Tuple[int, int],Tuple[int, int],Tuple[int, int]] = ((0,3700),(0,2800),(0,4)), 
-  step:int = 1, log_file = None)->None:
+  step:int = 1, log_file = None, *,time_interval:Optional[Tuple[int,int]]=None)->None:
   # creates objects to track
   #objects = Path(input) / "cell_locationsIdentifyPrimaryObjects.csv"
   objects = pd.read_csv(input_csv)
@@ -67,6 +70,10 @@ def btracking(input_csv:Path, cell_config:Path, output_file:Path, update:Literal
                                       'Location_Center_Y' : 'y', 'Metadata_zstep' : 'z'})
   formatted = formatted[['t', 'x', 'y', 'z']]
   formatted = formatted[formatted['z'] == z_filter]
+  if time_interval:
+    print(f'before time subset:{formatted.shape}')
+    formatted = formatted[(formatted['t'] >= time_interval[0]) & (formatted['t'] <= time_interval[1])]
+    print(f'after time subset:{formatted.shape}')
   objects_to_track = localizations_to_objects(formatted)
   # initialise a tracker session using a context manager
   with btrack.BayesianTracker() as tracker:

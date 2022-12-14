@@ -37,9 +37,13 @@ def image_conversion(image_path:Path, output_path:Path, conversion:Union[List[fl
             Rval = im_array[:,:,0]*conversion[0]
             Gval = im_array[:,:,1]*conversion[1]
             Bval = im_array[:,:,2]*conversion[2]
+            
             correct_im = Rval+ Gval+ Bval
             final_im = Image.fromarray((correct_im))
     final_im.save(str(output_path/image_path.name))
+    im.close()
+    final_im.close()
+    #print(f"finished {image_path}:number of open files = {len(psutil.Process().open_files())}")
 
 
 def grayscale_folder(image_dir:Path, outputfold:Path, regex:Pattern, conversion:Dict)->None:

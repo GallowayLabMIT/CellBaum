@@ -18,7 +18,8 @@ import re
 import contextlib
 #find required apps
 print(config)
-print(ConfigModel(**config))
+parsed_config = ConfigModel(**config)
+print(parsed_config)
 cp_app, fiji_app, java_app = val_env(Path(config["cp_dir"]), Path(config["fiji_dir"]))
 # generate name keys for stitching
 name_keys = get_namekeys(config["example_image_name"], config["Prefix"], config["image_regex"], 
@@ -149,7 +150,8 @@ rule btrack:
         update = config["Update_method"],
         search = config["Max_search_radius"],
         volume = config["Volume"],
-        step = config["Step_size"]
+        step = config["Step_size"],
+        time_interval = parsed_config.time_interval_to_track
     log:
         Path(config["log_dir"]) / "{well}btrack_log.txt"
     output:
@@ -161,7 +163,8 @@ rule btrack:
             dims = get_image_dims(input.stitch_dir)
             vol = ((0, max(dims[0])), (0, max(dims[1])), (0,2))
         btracking(input.cp_csv, params.cell_configs, output.final_data, 
-            update=params.update, search=params.search, vol=vol, step=params.step, log_file = log[0])
+            update=params.update, search=params.search, vol=vol, step=params.step, log_file = log[0],
+            time_interval=(params.time_interval.min,params.time_interval.max) if params.time_interval else None)
 
 rule h5_add:
     input: 

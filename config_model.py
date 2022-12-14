@@ -2,6 +2,9 @@ from pathlib import Path
 from typing import Dict, List, Literal, Optional, Union
 from pydantic import BaseModel, conlist
 
+class TimeIntervalModel(BaseModel):
+    min: int
+    max: int
 class ConfigModel(BaseModel):
     data_dir: Path
     cp_dir: Path
@@ -34,3 +37,5 @@ class ConfigModel(BaseModel):
     Volume: Optional[Union[List[List[int]], Literal['auto']]] = 'auto'
     Step_size: int
     CP_Data_Keep: Optional[Union[List[str], Literal['all']]] = 'all'
+
+    time_interval_to_track: Optional[TimeIntervalModel]

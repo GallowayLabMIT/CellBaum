@@ -53,3 +53,7 @@ Volume: auto or:
 Step_size: Number
 CP_Data_Keep :'all' or
  - list
+
+time_interval_to_track: # remove this to track all time points
+  min: first time point to send to btrack
+  max: last time point to send to btrack
