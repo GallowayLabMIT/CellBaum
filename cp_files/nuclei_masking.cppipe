@@ -1,8 +1,8 @@
 CellProfiler Pipeline: http://www.cellprofiler.org
 Version:5
-DateRevision:413
+DateRevision:421
 GitHash:
-ModuleCount:14
+ModuleCount:15
 HasImagePlaneDetails:False
 
 Images:[module_num:1|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['To begin creating your project, use the Images module to compile a list of files and/or folders that you want to analyze. You can also specify a set of rules to include only the desired files in your selected folders.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
@@ -17,7 +17,7 @@ Metadata:[module_num:2|svn_version:'Unknown'|variable_revision_number:6|show_win
     Extraction method count:1
     Metadata extraction method:Extract from file/folder names
     Metadata source:File name
-    Regular expression to extract from file name:T00(?P<time>\d{2})_(?P<channel>\w+)stitched-0.tif
+    Regular expression to extract from file name:T(?P<time>\d{4})_(?P<channel>.*)stitched-0.tif
     Regular expression to extract from folder name:(?P<Date>[0-9]{4}_[0-9]{2}_[0-9]{2})$
     Extract metadata from:All images
     Select the filtering criteria:and (file does contain "")
@@ -47,8 +47,8 @@ NamesAndTypes:[module_num:3|svn_version:'Unknown'|variable_revision_number:8|sho
     Select the image type:Grayscale image
     Set intensity range from:Image bit-depth
     Maximum intensity:255.0
-    Select the rule criteria:and (file does contain "CH1")
-    Name to assign these images:Blue
+    Select the rule criteria:and (file does contain "CH2")
+    Name to assign these images:Green
     Name to assign these objects:Nucleus
     Select the image type:Grayscale image
     Set intensity range from:Image metadata
@@ -65,37 +65,35 @@ Groups:[module_num:4|svn_version:'Unknown'|variable_revision_number:2|show_windo
     grouping metadata count:1
     Metadata category:None
 
-IdentifyPrimaryObjects:[module_num:5|svn_version:'Unknown'|variable_revision_number:14|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+IdentifyPrimaryObjects:[module_num:5|svn_version:'Unknown'|variable_revision_number:15|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the input image:Red
-    Name the primary objects to be identified:IdentifyPrimaryObjects
-    Typical diameter of objects, in pixel units (Min,Max):6,30
+    Name the primary objects to be identified:PreFilteredObjects
+    Typical diameter of objects, in pixel units (Min,Max):7,65
     Discard objects outside the diameter range?:Yes
     Discard objects touching the border of the image?:Yes
     Method to distinguish clumped objects:Intensity
     Method to draw dividing lines between clumped objects:Intensity
-    Size of smoothing filter:10
+    Size of smoothing filter:7
     Suppress local maxima that are closer than this minimum allowed distance:7.0
     Speed up by using lower-resolution image to find local maxima?:Yes
     Fill holes in identified objects?:After both thresholding and declumping
-    Automatically calculate size of smoothing filter for declumping?:Yes
+    Automatically calculate size of smoothing filter for declumping?:No
     Automatically calculate minimum allowed distance between local maxima?:Yes
     Handling of objects if excessive number of objects identified:Continue
     Maximum number of objects:500
-    Display accepted local maxima?:No
-    Select maxima color:Blue
     Use advanced settings?:Yes
     Threshold setting version:12
     Threshold strategy:Adaptive
     Thresholding method:Minimum Cross-Entropy
-    Threshold smoothing scale:1.5
-    Threshold correction factor:0.82
-    Lower and upper bounds on threshold:0.0,1.0
+    Threshold smoothing scale:1.65
+    Threshold correction factor:1
+    Lower and upper bounds on threshold:0.065,1.0
     Manual threshold:0.0
     Select the measurement to threshold with:None
     Two-class or three-class thresholding?:Two classes
-    Log transform before thresholding?:No
+    Log transform before thresholding?:Yes
     Assign pixels in the middle intensity class to the foreground or the background?:Foreground
-    Size of adaptive window:120
+    Size of adaptive window:240
     Lower outlier fraction:0.05
     Upper outlier fraction:0.05
     Averaging method:Mean
@@ -116,7 +114,12 @@ MeasureObjectNeighbors:[module_num:6|svn_version:'Unknown'|variable_revision_num
     Name the output image:PercentTouching
     Select colormap:Oranges
 
-FilterObjects:[module_num:7|svn_version:'Unknown'|variable_revision_number:8|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:False|wants_pause:False]
+MeasureObjectSizeShape:[module_num:7|svn_version:'Unknown'|variable_revision_number:3|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+    Select object sets to measure:PreFilteredObjects
+    Calculate the Zernike features?:No
+    Calculate the advanced features?:No
+
+FilterObjects:[module_num:8|svn_version:'Unknown'|variable_revision_number:9|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the objects to filter:PreFilteredObjects
     Name the output objects:IdentifyPrimaryObjects
     Select the filtering mode:Measurements
@@ -128,22 +131,24 @@ FilterObjects:[module_num:7|svn_version:'Unknown'|variable_revision_number:8|sho
     Measurement count:1
     Additional object count:0
     Assign overlapping child to:Both parents
-    Select the measurement to filter by:Neighbors_NumberOfNeighbors_20
-    Filter using a minimum measurement value?:No
-    Minimum value:0.0
-    Filter using a maximum measurement value?:Yes
+    Keep removed objects as a seperate set?:No
+    Name the objects removed by the filter:RemovedObjects
+    Select the measurement to filter by:AreaShape_FormFactor
+    Filter using a minimum measurement value?:Yes
+    Minimum value:0.69
+    Filter using a maximum measurement value?:No
     Maximum value:3
 
-MeasureObjectSizeShape:[module_num:8|svn_version:'Unknown'|variable_revision_number:3|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+MeasureObjectSizeShape:[module_num:9|svn_version:'Unknown'|variable_revision_number:3|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select object sets to measure:IdentifyPrimaryObjects
     Calculate the Zernike features?:No
     Calculate the advanced features?:No
 
-MeasureObjectIntensity:[module_num:9|svn_version:'Unknown'|variable_revision_number:4|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
-    Select images to measure:Blue, Red
+MeasureObjectIntensity:[module_num:10|svn_version:'Unknown'|variable_revision_number:4|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+    Select images to measure:Green, Red
     Select objects to measure:IdentifyPrimaryObjects
 
-ExportToSpreadsheet:[module_num:10|svn_version:'Unknown'|variable_revision_number:13|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+ExportToSpreadsheet:[module_num:11|svn_version:'Unknown'|variable_revision_number:13|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the column delimiter:Comma (",")
     Add image metadata columns to your object data file?:Yes
     Add image file and folder names to your object data file?:No
@@ -157,7 +162,7 @@ ExportToSpreadsheet:[module_num:10|svn_version:'Unknown'|variable_revision_numbe
     Select the image to use as the identifier:None
     Select the metadata to use as the identifier:None
     Export all measurement types?:Yes
-    Press button to select measurements:IdentifyPrimaryObjects|Location_MaxIntensity_Z_Blue,IdentifyPrimaryObjects|Location_MaxIntensity_Z_Red,IdentifyPrimaryObjects|Location_MaxIntensity_Y_Red,IdentifyPrimaryObjects|Location_MaxIntensity_Y_Blue,IdentifyPrimaryObjects|Location_MaxIntensity_X_Blue,IdentifyPrimaryObjects|Location_MaxIntensity_X_Red,IdentifyPrimaryObjects|Location_CenterMassIntensity_Y_Blue,IdentifyPrimaryObjects|Location_CenterMassIntensity_Y_Red,IdentifyPrimaryObjects|Location_CenterMassIntensity_Z_Blue,IdentifyPrimaryObjects|Location_CenterMassIntensity_Z_Red,IdentifyPrimaryObjects|Location_CenterMassIntensity_X_Red,IdentifyPrimaryObjects|Location_CenterMassIntensity_X_Blue,IdentifyPrimaryObjects|Location_Center_Z,IdentifyPrimaryObjects|Location_Center_X,IdentifyPrimaryObjects|Location_Center_Y,IdentifyPrimaryObjects|Intensity_StdIntensityEdge_Blue,IdentifyPrimaryObjects|Intensity_StdIntensityEdge_Red,IdentifyPrimaryObjects|Intensity_MaxIntensity_Blue,IdentifyPrimaryObjects|Intensity_MaxIntensity_Red,IdentifyPrimaryObjects|Intensity_IntegratedIntensityEdge_Blue,IdentifyPrimaryObjects|Intensity_IntegratedIntensityEdge_Red,IdentifyPrimaryObjects|Intensity_IntegratedIntensity_Red,IdentifyPrimaryObjects|Intensity_IntegratedIntensity_Blue,IdentifyPrimaryObjects|Intensity_MedianIntensity_Blue,IdentifyPrimaryObjects|Intensity_MedianIntensity_Red,IdentifyPrimaryObjects|Intensity_MADIntensity_Blue,IdentifyPrimaryObjects|Intensity_MADIntensity_Red,IdentifyPrimaryObjects|Intensity_MeanIntensity_Red,IdentifyPrimaryObjects|Intensity_MeanIntensity_Blue,IdentifyPrimaryObjects|Intensity_MeanIntensityEdge_Red,IdentifyPrimaryObjects|Intensity_MeanIntensityEdge_Blue,IdentifyPrimaryObjects|Intensity_StdIntensity_Red,IdentifyPrimaryObjects|Intensity_StdIntensity_Blue,IdentifyPrimaryObjects|Intensity_MinIntensityEdge_Red,IdentifyPrimaryObjects|Intensity_MinIntensityEdge_Blue,IdentifyPrimaryObjects|Intensity_LowerQuartileIntensity_Red,IdentifyPrimaryObjects|Intensity_LowerQuartileIntensity_Blue,IdentifyPrimaryObjects|Intensity_UpperQuartileIntensity_Blue,IdentifyPrimaryObjects|Intensity_UpperQuartileIntensity_Red,IdentifyPrimaryObjects|Intensity_MassDisplacement_Blue,IdentifyPrimaryObjects|Intensity_MassDisplacement_Red,IdentifyPrimaryObjects|Intensity_MaxIntensityEdge_Red,IdentifyPrimaryObjects|Intensity_MaxIntensityEdge_Blue,IdentifyPrimaryObjects|Intensity_MinIntensity_Blue,IdentifyPrimaryObjects|Intensity_MinIntensity_Red,IdentifyPrimaryObjects|AreaShape_Perimeter,IdentifyPrimaryObjects|AreaShape_MinFeretDiameter,IdentifyPrimaryObjects|AreaShape_MeanRadius,IdentifyPrimaryObjects|AreaShape_MaxFeretDiameter,IdentifyPrimaryObjects|AreaShape_Compactness,IdentifyPrimaryObjects|AreaShape_MedianRadius,IdentifyPrimaryObjects|AreaShape_Orientation,IdentifyPrimaryObjects|AreaShape_BoundingBoxMaximum_X,IdentifyPrimaryObjects|AreaShape_BoundingBoxMaximum_Y,IdentifyPrimaryObjects|AreaShape_EquivalentDiameter,IdentifyPrimaryObjects|AreaShape_BoundingBoxArea,IdentifyPrimaryObjects|AreaShape_BoundingBoxMinimum_X,IdentifyPrimaryObjects|AreaShape_BoundingBoxMinimum_Y,IdentifyPrimaryObjects|AreaShape_MaximumRadius,IdentifyPrimaryObjects|AreaShape_EulerNumber,IdentifyPrimaryObjects|AreaShape_Solidity,IdentifyPrimaryObjects|AreaShape_Extent,IdentifyPrimaryObjects|AreaShape_Eccentricity,IdentifyPrimaryObjects|AreaShape_Center_X,IdentifyPrimaryObjects|AreaShape_Center_Y,IdentifyPrimaryObjects|AreaShape_MinorAxisLength,IdentifyPrimaryObjects|AreaShape_FormFactor,IdentifyPrimaryObjects|AreaShape_MajorAxisLength,IdentifyPrimaryObjects|AreaShape_Area,IdentifyPrimaryObjects|Number_Object_Number
+    Press button to select measurements:IdentifyPrimaryObjects|Location_MaxIntensity_Y_Red,IdentifyPrimaryObjects|Location_MaxIntensity_Z_Red,IdentifyPrimaryObjects|Location_MaxIntensity_X_Red,IdentifyPrimaryObjects|Location_MaxIntensity_X_Green,IdentifyPrimaryObjects|Location_CenterMassIntensity_Z_Red,IdentifyPrimaryObjects|Location_CenterMassIntensity_Z_Green,IdentifyPrimaryObjects|Location_CenterMassIntensity_Y_Red,IdentifyPrimaryObjects|Location_CenterMassIntensity_Y_Green,IdentifyPrimaryObjects|Location_CenterMassIntensity_X_Red,IdentifyPrimaryObjects|Location_CenterMassIntensity_X_Green,IdentifyPrimaryObjects|Location_Center_Y,IdentifyPrimaryObjects|Location_Center_X,IdentifyPrimaryObjects|Location_Center_Z,IdentifyPrimaryObjects|AreaShape_Extent,IdentifyPrimaryObjects|AreaShape_MajorAxisLength,IdentifyPrimaryObjects|AreaShape_Center_X,IdentifyPrimaryObjects|AreaShape_Center_Y,IdentifyPrimaryObjects|AreaShape_Solidity,IdentifyPrimaryObjects|AreaShape_Orientation,IdentifyPrimaryObjects|AreaShape_BoundingBoxMaximum_X,IdentifyPrimaryObjects|AreaShape_BoundingBoxMaximum_Y,IdentifyPrimaryObjects|AreaShape_FormFactor,IdentifyPrimaryObjects|AreaShape_MaxFeretDiameter,IdentifyPrimaryObjects|AreaShape_EquivalentDiameter,IdentifyPrimaryObjects|AreaShape_MaximumRadius,IdentifyPrimaryObjects|AreaShape_EulerNumber,IdentifyPrimaryObjects|AreaShape_BoundingBoxMinimum_Y,IdentifyPrimaryObjects|AreaShape_BoundingBoxMinimum_X,IdentifyPrimaryObjects|AreaShape_ConvexArea,IdentifyPrimaryObjects|AreaShape_BoundingBoxArea,IdentifyPrimaryObjects|AreaShape_Eccentricity,IdentifyPrimaryObjects|AreaShape_Perimeter,IdentifyPrimaryObjects|AreaShape_MinorAxisLength,IdentifyPrimaryObjects|AreaShape_MinFeretDiameter,IdentifyPrimaryObjects|AreaShape_Area,IdentifyPrimaryObjects|AreaShape_MeanRadius,IdentifyPrimaryObjects|AreaShape_Compactness,IdentifyPrimaryObjects|AreaShape_MedianRadius,IdentifyPrimaryObjects|Intensity_StdIntensity_Red,IdentifyPrimaryObjects|Intensity_StdIntensity_Green,IdentifyPrimaryObjects|Intensity_MassDisplacement_Red,IdentifyPrimaryObjects|Intensity_MassDisplacement_Green,IdentifyPrimaryObjects|Intensity_IntegratedIntensityEdge_Red,IdentifyPrimaryObjects|Intensity_IntegratedIntensityEdge_Green,IdentifyPrimaryObjects|Intensity_UpperQuartileIntensity_Green,IdentifyPrimaryObjects|Intensity_UpperQuartileIntensity_Red,IdentifyPrimaryObjects|Intensity_MaxIntensity_Red,IdentifyPrimaryObjects|Intensity_MaxIntensity_Green,IdentifyPrimaryObjects|Intensity_StdIntensityEdge_Green,IdentifyPrimaryObjects|Intensity_StdIntensityEdge_Red,IdentifyPrimaryObjects|Intensity_MeanIntensity_Red,IdentifyPrimaryObjects|Intensity_MeanIntensity_Green,IdentifyPrimaryObjects|Intensity_MinIntensity_Green,IdentifyPrimaryObjects|Intensity_MinIntensity_Red,IdentifyPrimaryObjects|Intensity_LowerQuartileIntensity_Green,IdentifyPrimaryObjects|Intensity_LowerQuartileIntensity_Red,IdentifyPrimaryObjects|Intensity_MADIntensity_Green,IdentifyPrimaryObjects|Intensity_MADIntensity_Red,IdentifyPrimaryObjects|Intensity_MeanIntensityEdge_Red,IdentifyPrimaryObjects|Intensity_MeanIntensityEdge_Green,IdentifyPrimaryObjects|Intensity_IntegratedIntensity_Green,IdentifyPrimaryObjects|Intensity_IntegratedIntensity_Red,IdentifyPrimaryObjects|Intensity_MinIntensityEdge_Green,IdentifyPrimaryObjects|Intensity_MinIntensityEdge_Red,IdentifyPrimaryObjects|Intensity_MedianIntensity_Red,IdentifyPrimaryObjects|Intensity_MedianIntensity_Green,IdentifyPrimaryObjects|Intensity_MaxIntensityEdge_Green,IdentifyPrimaryObjects|Intensity_MaxIntensityEdge_Red,IdentifyPrimaryObjects|Parent_PreFilteredObjects,IdentifyPrimaryObjects|Number_Object_Number
     Representation of Nan/Inf:NaN
     Add a prefix to file names?:Yes
     Filename prefix:cell_locations
@@ -167,7 +172,7 @@ ExportToSpreadsheet:[module_num:10|svn_version:'Unknown'|variable_revision_numbe
     File name:DATA.csv
     Use the object name for the file name?:Yes
 
-MaskImage:[module_num:11|svn_version:'Unknown'|variable_revision_number:3|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+MaskImage:[module_num:12|svn_version:'Unknown'|variable_revision_number:3|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:False|wants_pause:False]
     Select the input image:Red
     Name the output image:MaskRed
     Use objects or an image as a mask?:Objects
@@ -175,13 +180,13 @@ MaskImage:[module_num:11|svn_version:'Unknown'|variable_revision_number:3|show_w
     Select image for mask:None
     Invert the mask?:No
 
-ConvertObjectsToImage:[module_num:12|svn_version:'Unknown'|variable_revision_number:1|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
-    Select the input objects:IdentifyPrimaryObjects
+ConvertObjectsToImage:[module_num:13|svn_version:'Unknown'|variable_revision_number:1|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:False|wants_pause:False]
+    Select the input objects:PreFilteredObjects
     Name the output image:Obj_Image
     Select the color format:Color
     Select the colormap:Default
 
-SaveImages:[module_num:13|svn_version:'Unknown'|variable_revision_number:15|show_window:True|notes:['']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+SaveImages:[module_num:14|svn_version:'Unknown'|variable_revision_number:16|show_window:True|notes:['']|batch_state:array([], dtype=uint8)|enabled:False|wants_pause:False]
     Select the type of image to save:Image
     Select the image to save:Obj_Image
     Select method for constructing file names:From image filename
@@ -199,8 +204,9 @@ SaveImages:[module_num:13|svn_version:'Unknown'|variable_revision_number:15|show
     Create subfolders in the output folder?:No
     Base image folder:Elsewhere...|
     How to save the series:T (Time)
+    Save with lossless compression?:No
 
-SaveImages:[module_num:14|svn_version:'Unknown'|variable_revision_number:15|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:False|wants_pause:False]
+SaveImages:[module_num:15|svn_version:'Unknown'|variable_revision_number:16|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:False|wants_pause:False]
     Select the type of image to save:Mask
     Select the image to save:MaskRed
     Select method for constructing file names:From image filename
@@ -218,3 +224,4 @@ SaveImages:[module_num:14|svn_version:'Unknown'|variable_revision_number:15|show
     Create subfolders in the output folder?:No
     Base image folder:Elsewhere...|
     How to save the series:T (Time)
+    Save with lossless compression?:No
